@@ -164,7 +164,7 @@ def addMemberMenu():
         des="["+now.strftime("%Y-%m-%d %H:%M:%S")+"]  : "
         des+=desText.get("1.0","end")
         for ko in id:#이름은 중복이 있을 수 있으나 ID는 중복불가이므로 ID로 중복체크
-            if findMember(ko)!=[{}]:
+            if findMember(ko)!=[]:
                 messagebox.showinfo("Error","ID가 일치하는 멤버가 있습니다.")
                 window.destroy()
                 return
@@ -216,7 +216,7 @@ def addMemberMenu():
     label2.image=resized_img2
     
     idText=scrolledtext.ScrolledText(window)
-    idText.config(height=1,width=30)
+    idText.config(height=1,width=30,font=fontStyle)
     
     img3=Image.open(check_image_list[14])
     img3=img3.resize((180,50),Image.ANTIALIAS)
@@ -345,7 +345,7 @@ if __name__ == "__main__":
     desText.pack(fill='x')
 
     frame5=Frame(top,relief="solid",bd=2)
-    frame5.pack(fill='y',side="left")
+    frame5.pack(side="left")
 
     logo_me=imageModifier(logo_path,200,200)
     logolabel=Label(frame5,image=logo_me)
