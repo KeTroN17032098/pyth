@@ -97,6 +97,11 @@ def findMember(info):
                 elif info_member in member['ID']:
                     Target_Members.append(member)
                     print ("Find : "+str(member))#디버그 용
+    elif type(info)=="int":
+        for member in blacklist['members']:
+            if info==member['Key']:
+                Target_Members.append(member)
+                print ("Find : "+str(member))#디버그 용
     print(Target_Members)
     return Target_Members
 
@@ -261,33 +266,54 @@ def addMemberMenu():
     desText.place(x=40,y=630)
     button.place(x=175,y=750)
 
-def updateinfobox():
+def updateListBox2():#시작시 리스트박스 초기화
+    global listbox2
+
+    listbox2.delete(0,END)
+    listbox2.insert(END,"이름")
+    listbox2.insert(END,"ID")
+    listbox2.insert(END,"적발횟수")
+    listbox2.insert(END,"장소")
+    listbox2.insert(END,"상세설명")
+
+
+def showinfo():#상세정보 창 띄우기
     pass
 
 
-def showinfo(event):#더블 클릭시 
+def changeinfo(event):#더블 클릭시 
+    global listbox1
+    global listbox2
+    global desText
+    selectedindex=listbox1.curselection()
+    try:
+        print("as"+str(selectedindex))
+    except IndexError:
+        print("error")
+
+def updateDesText(event):
+    pass
+
+def searchinfo():#검색 후 창 띄우기
     pass
 
 
-def changeinfo():
-    pass
-
-
-if os.path.exists(file_path):#만약 파일이 있다면
-    print("exist")
-    openFile()#파일 불러오기
-else:#없다면
-    newFile()#만들기
 
 if __name__ == "__main__":
-    
+    if os.path.exists(file_path):#만약 파일이 있다면
+        print("exist")
+        openFile()#파일 불러오기
+    else:#없다면
+        newFile()#만들기
+
     top=Tk()#tk 객체 인스턴스 생성
     top.iconbitmap(default=icon_path)#아이콘 설정
     top.title("블랙리스트 프로그램")#제목
-    top.geometry("1000x1000")#창 크기 설정
+    top.geometry("1200x900")#창 크기 설정
     top.resizable(False,False)#사이즈 조정 블럭
 
     fontStyle=tkFont.Font(family="Lucida Grande",size=15)
+    fontStyle2=tkFont.Font(family="Lucida Grande",size=25)
 
     menubar=Menu(top)#메뉴바 객체 생성
     menu1=Menu(menubar,tearoff=0)#메뉴바에 속한 메뉴 생성
@@ -312,11 +338,12 @@ if __name__ == "__main__":
     #프레임1 내부 객체 위치 pack
     scrollbar1.pack(side="right")
     listbox1.pack(side="left")
+    listbox1.bind("<Button-1>",changeinfo)
 
-    listbox1.bind("<Double-Button-1>",showinfo)
     #중앙 버튼 배당 프레임3
     frame3=Frame(top,relief="solid",bd=2)
     frame3.pack(fill='x')
+
     button1=Button(frame3,text="멤버 상세정보",overrelief="solid",command=showinfo,font=fontStyle)
     button1.pack(fill='x')
 
@@ -328,8 +355,11 @@ if __name__ == "__main__":
     deslabel.pack(fill='x',side="top")
 
     scrollbar2=Scrollbar(frame2,orient="vertical")
-    listbox2=Listbox(frame2,yscrollcommand=scrollbar2.set,width=25)
+    listbox2=Listbox(frame2,yscrollcommand=scrollbar2.set,width=15,font=fontStyle2)
     scrollbar2.config(command=listbox2.yview)
+
+    updateListBox2()
+    listbox2.bind("<Button-1>",updateDesText)
 
     scrollbar2.pack(side="right",fill="y")
     listbox2.pack(side="left",fill='y')
@@ -362,19 +392,25 @@ if __name__ == "__main__":
     subFrame1=Frame(frame6,relief="solid",bd=2)
     subFrame1.pack(side="top",fill='x')
 
-    snLabel=Label(subFrame1,font=fontStyle,text="이름 :",height=10)
+    snLabel=Label(subFrame1,font=fontStyle,text="이름 :",height=2)
     snLabel.pack(side="left")
 
-    snText=Text(subFrame1,height=10)
+    snText=Text(subFrame1,font=fontStyle,height=2)
     snText.pack()
 
     subFrame2=Frame(frame6)
     subFrame2.pack(side="bottom",fill='x')
 
-    siLabel=Label(subFrame2,font=fontStyle,text="ID :",height=10)
+    siLabel=Label(subFrame2,font=fontStyle,text="아이디 :",height=2)
     siLabel.pack(side="left")
 
-    siText=Text(subFrame2,font=fontStyle,height=10)
-    siText.pack(side="right")
+    siText=Text(subFrame2,font=fontStyle,height=2)
+    siText.pack(side="top",fill='x')
+
+    subFrame3=Frame(top)
+    subFrame3.pack(side="top",fill='both',expand=True)
+
+    sbutton1=Button(subFrame3,text="멤버 검색",overrelief="solid",command=searchinfo,font=fontStyle)
+    sbutton1.pack(fill='both',side="top",expand=True)
 
     top.mainloop()
