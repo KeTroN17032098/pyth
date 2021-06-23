@@ -284,7 +284,7 @@ if __name__ == "__main__":
     top=Tk()#tk 객체 인스턴스 생성
     top.iconbitmap(default=icon_path)#아이콘 설정
     top.title("블랙리스트 프로그램")#제목
-    top.geometry("920x920")#창 크기 설정
+    top.geometry("1000x1000")#창 크기 설정
     top.resizable(False,False)#사이즈 조정 블럭
 
     fontStyle=tkFont.Font(family="Lucida Grande",size=15)
@@ -322,17 +322,17 @@ if __name__ == "__main__":
 
     #프레임2 
     frame2=Frame(top,relief="solid",bd=2)
-    frame2.pack(side="left",anchor="n")
+    frame2.pack(side="left",anchor="n",fill='y')
 
     deslabel=Label(frame2,font=fontStyle,text="일람요소")
     deslabel.pack(fill='x',side="top")
 
     scrollbar2=Scrollbar(frame2,orient="vertical")
-    listbox2=Listbox(frame2,yscrollcommand=scrollbar2.set,width=25,height=19)
+    listbox2=Listbox(frame2,yscrollcommand=scrollbar2.set,width=25)
     scrollbar2.config(command=listbox2.yview)
 
     scrollbar2.pack(side="right",fill="y")
-    listbox2.pack(side="top",fill='y')
+    listbox2.pack(side="left",fill='y')
 
     frame4=Frame(top,relief="solid",bd=2)
     frame4.pack(fill='x',side="top")
@@ -342,14 +342,39 @@ if __name__ == "__main__":
 
     desText=scrolledtext.ScrolledText(frame4)
     desText.bind("<Key>",lambda e: ctrlEvent(e))
+    desText.config(font=fontStyle,height=15)
     desText.pack(fill='x')
 
     frame5=Frame(top,relief="solid",bd=2)
-    frame5.pack(side="left")
+    frame5.pack(side="left",fill='y')
 
-    logo_me=imageModifier(logo_path,200,200)
-    logolabel=Label(frame5,image=logo_me)
+    logo_me=imageModifier(logo_path,248,200)
+    logolabel=Label(frame5,image=logo_me,background="white")
     logolabel.image=logo_me
     logolabel.pack(fill="y")
+
+    frame6=Frame(top,relief="solid",bd=2)
+    frame6.pack(side="top",fill="both")
+    
+    searchLabel=Label(frame6,font=fontStyle,text="검색")
+    searchLabel.pack(fill='x',side="top")
+
+    subFrame1=Frame(frame6,relief="solid",bd=2)
+    subFrame1.pack(side="top",fill='x')
+
+    snLabel=Label(subFrame1,font=fontStyle,text="이름 :",height=10)
+    snLabel.pack(side="left")
+
+    snText=Text(subFrame1,height=10)
+    snText.pack()
+
+    subFrame2=Frame(frame6)
+    subFrame2.pack(side="bottom",fill='x')
+
+    siLabel=Label(subFrame2,font=fontStyle,text="ID :",height=10)
+    siLabel.pack(side="left")
+
+    siText=Text(subFrame2,font=fontStyle,height=10)
+    siText.pack(side="right")
 
     top.mainloop()
