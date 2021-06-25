@@ -25,6 +25,8 @@ def ctrlEvent(event):#crtl+c제외 키 블락
     else:
         return "break"
 
+SELECTED_INDEX=-1
+SELECTED_MEMBER={}
 
 def newFile():#새 파일 생성
     global blacklist
@@ -80,6 +82,7 @@ def addMember(member):#멤버 추가 후 자동 저장
 def findMember(info):
     global blacklist
     Target_Members=[]
+    print(info)
     if type(info)=="str":
         for member in blacklist['members']:
             if info in member['Name']:
@@ -101,8 +104,10 @@ def findMember(info):
         for member in blacklist['members']:
             if info==member['Key']:
                 Target_Members.append(member)
+                print("a")
                 print ("Find : "+str(member))#디버그 용
-    print(Target_Members)
+
+    print("member : "+str(Target_Members))
     return Target_Members
 
 def memberlistboxUpdate():#리스트박스1의 업데이트 함수
@@ -280,19 +285,76 @@ def updateListBox2():#시작시 리스트박스 초기화
 def showinfo():#상세정보 창 띄우기
     pass
 
-
-def changeinfo(event):#더블 클릭시 
+def findSelectedMember():#리스트박스1 선택된 멤버 가져오기
     global listbox1
+
+    targetmember=[]
+    k=0
+    try:
+        selectedindex=listbox1.curselection()[0]
+        print("az"+str(selectedindex))
+        infostr=listbox1.get(selectedindex)
+        print(infostr[0]+"aa")
+        k=int(infostr[0])
+        
+    except IndexError:
+        print("IndexError - No Member Key")
+    targetmember=findMember(k)
+    print(targetmember)
+    return targetmember
+
+def findSelectedIndex():#리스트박스 2 클릭시 인덱스 가져오기 함수
     global listbox2
     global desText
-    selectedindex=listbox1.curselection()
+    targetindex=-1
     try:
+        selectedindex=listbox2.curselection()[0]
         print("as"+str(selectedindex))
+        targetindex=selectedindex
+        
     except IndexError:
-        print("error")
+        print("IndexError - No Index Key")
+    
+    return targetindex  
+
+def changedesText(member={},menu=-1):
+    global desText
+
+    if menu==-1:
+        desText.delete(0,END)
+        desText.insert(END,"본 텍스트 창에 선택하신 멤버의 정보가 뜹니다.")
+    elif 0<=menu<=4:
+        if member!={}:
+            if menu==0:
+                desText.delete(0,END)
+                desText.insert(END,member["Name"])
+            elif menu==1:
+                desText.delete(0,END)
+                desText.insert(END,member["ID"])
+            elif menu==2:
+                desText.delete(0,END)
+                desText.insert(END,member["number"])
+            elif menu==3:
+                desText.delete(0,END)
+                desText.insert(END,member["where"])
+            elif menu==4:
+                desText.delete(0,END)
+                desText.insert(END,member["description"])
+            else:
+                return
+        else:
+            return
+    else:
+        return
+
+def changeinfo(event):#리스트 박스1 클릭시 
+    SELECTED_MEMBER=findSelectedMember()[0]
+    changedesText(SELECTED_MEMBER,SELECTED_INDEX)
 
 def updateDesText(event):
-    pass
+    SELECTED_INDEX=findSelectedIndex()
+    changedesText(SELECTED_MEMBER,SELECTED_INDEX)
+
 
 def searchinfo():#검색 후 창 띄우기
     pass
@@ -338,7 +400,7 @@ if __name__ == "__main__":
     #프레임1 내부 객체 위치 pack
     scrollbar1.pack(side="right")
     listbox1.pack(side="left")
-    listbox1.bind("<Button-1>",changeinfo)
+    listbox1.bind("<Double-Button-1>",changeinfo)
 
     #중앙 버튼 배당 프레임3
     frame3=Frame(top,relief="solid",bd=2)
@@ -355,11 +417,11 @@ if __name__ == "__main__":
     deslabel.pack(fill='x',side="top")
 
     scrollbar2=Scrollbar(frame2,orient="vertical")
-    listbox2=Listbox(frame2,yscrollcommand=scrollbar2.set,width=15,font=fontStyle2)
+    listbox2=Listbox(frame2,yscrollcommand=scrollbar2.set,width=15,font=fontStyle2,selectmode="SINGLE")
     scrollbar2.config(command=listbox2.yview)
 
     updateListBox2()
-    listbox2.bind("<Button-1>",updateDesText)
+    listbox2.bind("<Double-Button-1>",updateDesText)
 
     scrollbar2.pack(side="right",fill="y")
     listbox2.pack(side="left",fill='y')
@@ -378,7 +440,7 @@ if __name__ == "__main__":
     frame5=Frame(top,relief="solid",bd=2)
     frame5.pack(side="left",fill='y')
 
-    logo_me=imageModifier(logo_path,248,200)
+    logo_me=imageModifier(logo_path,200,200)
     logolabel=Label(frame5,image=logo_me,background="white")
     logolabel.image=logo_me
     logolabel.pack(fill="y")
