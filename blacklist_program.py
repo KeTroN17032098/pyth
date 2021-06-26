@@ -83,7 +83,7 @@ def findMember(info):
     global blacklist
     Target_Members=[]
     print(info)
-    if type(info)=="str":
+    if type(info)==str:
         for member in blacklist['members']:
             if info in member['Name']:
                 Target_Members.append(member)
@@ -91,7 +91,7 @@ def findMember(info):
             elif info in member['ID']:
                 Target_Members.append(member)
                 print ("Find : "+str(member))#디버그 용
-    elif type(info)=='list':
+    elif type(info)==list:
         for info_member in info:
             for member in blacklist['members']:
                 if info_member in member['Name']:
@@ -100,7 +100,7 @@ def findMember(info):
                 elif info_member in member['ID']:
                     Target_Members.append(member)
                     print ("Find : "+str(member))#디버그 용
-    elif type(info)=="int":
+    elif type(info)==int:
         for member in blacklist['members']:
             if info==member['Key']:
                 Target_Members.append(member)
@@ -319,27 +319,24 @@ def findSelectedIndex():#리스트박스 2 클릭시 인덱스 가져오기 함�
 
 def changedesText(member={},menu=-1):
     global desText
-
+    print(member)
+    desText.delete("1.0",END)
     if menu==-1:
-        desText.delete(0,END)
         desText.insert(END,"본 텍스트 창에 선택하신 멤버의 정보가 뜹니다.")
     elif 0<=menu<=4:
         if member!={}:
             if menu==0:
-                desText.delete(0,END)
-                desText.insert(END,member["Name"])
+                for name in member['Name']:
+                    desText.insert(END,name+",")
             elif menu==1:
-                desText.delete(0,END)
-                desText.insert(END,member["ID"])
+                desText.insert(END,str(member["ID"]))
             elif menu==2:
-                desText.delete(0,END)
-                desText.insert(END,member["number"])
+                desText.insert(END,str(member["number"]))
             elif menu==3:
-                desText.delete(0,END)
-                desText.insert(END,member["where"])
+                desText.insert(END,str(member["where"]))
             elif menu==4:
-                desText.delete(0,END)
-                desText.insert(END,member["description"])
+                print(member["description"])
+                desText.insert(END,str(member["description"]))
             else:
                 return
         else:
@@ -348,10 +345,14 @@ def changedesText(member={},menu=-1):
         return
 
 def changeinfo(event):#리스트 박스1 클릭시 
+    global SELECTED_MEMBER
+    global SELECTED_INDEX
     SELECTED_MEMBER=findSelectedMember()[0]
     changedesText(SELECTED_MEMBER,SELECTED_INDEX)
 
 def updateDesText(event):
+    global SELECTED_MEMBER
+    global SELECTED_INDEX
     SELECTED_INDEX=findSelectedIndex()
     changedesText(SELECTED_MEMBER,SELECTED_INDEX)
 
