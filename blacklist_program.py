@@ -11,6 +11,8 @@ import datetime
 from PIL import Image, ImageTk
 import getpass as gp
 
+
+
 file_path="data/blacklist.json"
 logo_path="./logo.png"
 icon_path="./logo.ico"
@@ -421,7 +423,7 @@ if __name__ == "__main__":
     top=Tk()#tk 객체 인스턴스 생성
     top.iconbitmap(default=icon_path)#아이콘 설정
     top.title("블랙리스트 프로그램")#제목
-    top.geometry("1200x900")#창 크기 설정
+    top.geometry("800x600")#창 크기 설정
     top.resizable(False,False)#사이즈 조정 블럭
 
     fontStyle=tkFont.Font(family="Lucida Grande",size=15)
@@ -442,7 +444,7 @@ if __name__ == "__main__":
 
     scrollbar1=Scrollbar(frame1,orient="vertical")#스크롤바
 
-    listbox1=Listbox(frame1,yscrollcommand=scrollbar1.set,width=125,height=15,font=fontStyle,selectmode="SINGLE")#멤버 리스트박스
+    listbox1=Listbox(frame1,yscrollcommand=scrollbar1.set,width=125,height=8,font=fontStyle,selectmode="SINGLE")#멤버 리스트박스
 
     scrollbar1.config(command=listbox1.yview)
 
@@ -484,13 +486,13 @@ if __name__ == "__main__":
 
     desText=scrolledtext.ScrolledText(frame4)
     desText.bind("<Key>",lambda e: ctrlEvent(e))
-    desText.config(font=fontStyle,height=15)
+    desText.config(font=fontStyle,height=10)
     desText.pack(fill='x')
 
     frame5=Frame(top,relief="solid",bd=2)
     frame5.pack(side="left",fill='y')
 
-    logo_me=imageModifier(logo_path,200,200)
+    logo_me=imageModifier(logo_path,200,130)
     logolabel=Label(frame5,image=logo_me,background="white")
     logolabel.image=logo_me
     logolabel.pack(fill="y")
@@ -504,19 +506,19 @@ if __name__ == "__main__":
     subFrame1=Frame(frame6,relief="solid",bd=2)
     subFrame1.pack(side="top",fill='x')
 
-    snLabel=Label(subFrame1,font=fontStyle,text="이름 :",height=2)
+    snLabel=Label(subFrame1,font=fontStyle,text="이름 :",height=1)
     snLabel.pack(side="left")
 
-    snText=Text(subFrame1,font=fontStyle,height=2)
+    snText=Text(subFrame1,font=fontStyle,height=1)
     snText.pack()
 
     subFrame2=Frame(frame6)
     subFrame2.pack(side="bottom",fill='x')
 
-    siLabel=Label(subFrame2,font=fontStyle,text="아이디 :",height=2)
+    siLabel=Label(subFrame2,font=fontStyle,text="아이디 :",height=1)
     siLabel.pack(side="left")
 
-    siText=Text(subFrame2,font=fontStyle,height=2)
+    siText=Text(subFrame2,font=fontStyle,height=1)
     siText.pack(side="top",fill='x')
 
     subFrame3=Frame(top)
