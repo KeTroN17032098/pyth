@@ -167,6 +167,35 @@ def deleteMember(info):#입력 정보로 멤버 삭제(수정 필요)
     
     saveFile()
     print (blacklist['members'])
+    
+def addDetail(memberKey,newWhere,newDes):
+    global places
+    for member in blacklist['members']:
+        if memberKey==member['key']:
+            now=datetime.datetime.now()#샘플 객체에 첫 제작 날 기록
+            des="["+now.strftime("%Y-%m-%d %H:%M:%S")+"]  : "
+            newTempds=des+newDes
+            if newDes!="":
+                member['description'].append(newTempds)
+            for v in member['where']:
+                if v==newWhere or newWhere not in places:
+                    return True
+               
+            member['where'].append(newWhere)
+            return True
+        else:
+            return False
+            
+    
+
+def addNumberGui():#적발횟수 추가
+    pass
+
+def changeDetailGui():#상세정보 수정
+    pass
+
+def deleteMemberGui():#현재 보고 있는 멤버 삭제
+    pass
 
 def Help():#사용법 메뉴 버튼 이벤트
     webbrowser.open("help.pdf")
@@ -301,6 +330,15 @@ def showinfo():#상세정보 창 띄우기
     global top
     global SELECTED_MEMBER
 
+    def addDetailGui():#상세정보 추가 버튼 누를시 창 띄우기
+        newWindow=Toplevel(window)
+        newWindow.geometry("300x300")
+        newWindow.resizable(False,False)
+        newWindow.title("정보 추가")
+        newWindow.iconbitmap(default=icon_path)
+        
+        listboxwhere=Listbox(newWindow)#스크롤 바 및 다중 선택 허용 또한 버튼을 누르면 예 아니오로 확인하고 예 누르면 저장 후 상세정보 창까지 삭제
+
     if SELECTED_MEMBER=={}:
         messagebox.showerror("멤버 선택 없음","정보를 열람하실 멤버를 선택해주세요.")
     else:
@@ -355,10 +393,25 @@ def showinfo():#상세정보 창 띄우기
         
 
         frame2=Frame(window,relief="solid",bd=2)
-        frame2.pack(side="bottom",fill='x')
+        frame2.pack(side="bottom",fill='both')
 
-        buttonField1=Frame(frame2,relief="solid",bg=2)
-        buttonField1.pack(side="top",fill='x')
+        buttonField1=Frame(frame2,relief="solid",bd=2)
+        buttonField1.pack(side="top")
+        
+        changeDetailButton=Button(buttonField1,text="정보 수정",height=2,width=15,font=fontStyle,command=changeDetailGui)
+        changeDetailButton.pack(side="left")
+        
+        addNumberButton=Button(buttonField1,text="적발횟수 추가",height=2,width=15,font=fontStyle,command=addNumberGui)
+        addNumberButton.pack(side="right")
+        
+        buttonField2=Frame(frame2)
+        buttonField2.pack(side="bottom")
+        
+        deleteSelctedMember=Button(buttonField2,text="멤버 삭제",height=2,width=15,font=fontStyle,command=deleteMemberGui)
+        deleteSelctedMember.pack(side="left")
+        
+        addDetailbutton=Button(buttonField2,text="정보 추가",height=2,width=15,font=fontStyle,command=addDetailGui)
+        addDetailbutton.pack(side="right")
         
 
 
