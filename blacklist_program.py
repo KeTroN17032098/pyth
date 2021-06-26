@@ -117,11 +117,25 @@ def memberlistboxUpdate():#리스트박스1의 업데이트 함수
     for i in range(1,blacklist['len']+1):
         if blacklist['members'][i]['Name']!=[""]:
             listbox1.insert(END,str(blacklist['members'][i]['Key'])+" : "+str(blacklist['members'][i]['Name']))
-            print(str(blacklist['members'][i]['Name']))
         else:
             listbox1.insert(END,str(blacklist['members'][i]['Key'])+" : "+str(blacklist['members'][i]['ID']))
-            print(str(blacklist['members'][i]['ID']))
 
+def scrolledtext_modifier(frame,fontstyle,height,content):#스크롤 텍스트 설정 간편화
+    tempText=scrolledtext.ScrolledText(frame)
+    tempText.bind("<Key>",lambda e: ctrlEvent(e))
+    tempText.config(font=fontstyle,height=height)
+    if type(content)==str:
+        tempText.insert(END,content)
+    elif type(content)==list:
+        for i in content:
+            tempText.insert(END,i+'\n')
+    else:
+        try:
+            tempText.insert(END,str(content))
+        except IndexError:
+            print("invalid content")
+    
+    return tempText
 
 def imageModifier(FILE_PATH,x,y):#아미지 사이즈 재설정 함수
     img1=Image.open(FILE_PATH)
@@ -178,8 +192,7 @@ def addMemberMenu():
                 messagebox.showinfo("Error","ID가 일치하는 멤버가 있습니다.")
                 window.destroy()
                 return
-        if name==[""]:#만약 아이디와 이름 둘다 입력 안 할시 처리
-            if id==[""]:
+        if name==[""] and id==[""]:#만약 아이디와 이름 둘다 입력 안 할시 처리
                 messagebox.showinfo("Error","ID나 이름 둘 중 하나는 필요합니다.")
                 window.destroy()
         else:
@@ -283,7 +296,34 @@ def updateListBox2():#시작시 리스트박스 초기화
 
 
 def showinfo():#상세정보 창 띄우기
-    pass
+    global top
+    global SELECTED_MEMBER
+
+    if SELECTED_MEMBER=={}:
+        messagebox.showerror("멤버 선택 없음","정보를 열람하실 멤버를 선택해주세요.")
+    else:
+        window=Toplevel(top)
+        window.geometry("500x500+100+100")
+        window.resizable(False,False)
+        window.title("멤버 상세정보 창")
+        window.iconbitmap(default=icon_path)
+
+        frame1=Frame(window,relief="solid",bd=2)
+        frame1.pack(side="top",fill='x')
+
+        NameField=Frame(frame1)
+        NameField.pack(side="top",fill='x')
+
+        NameLabel=Label(NameField,font=fontStyle,text="성함 : ")
+        NameLabel.pack(side="left",fill='y')
+        NameText=scrolledtext_modifier(NameField,fontStyle,1,SELECTED_MEMBER['Name'])
+        NameText.pack(side="right",fill='y')
+        
+
+        frame2=Frame(window,relief="solid",bd=2)
+        frame2.pack(side="bottom",fill='x')
+
+
 
 def findSelectedMember():#리스트박스1 선택된 멤버 가져오기
     global listbox1
@@ -293,9 +333,9 @@ def findSelectedMember():#리스트박스1 선택된 멤버 가져오기
     try:
         selectedindex=listbox1.curselection()[0]
         print("az"+str(selectedindex))
-        infostr=listbox1.get(selectedindex)
-        print(infostr[0]+"aa")
-        k=int(infostr[0])
+        infostr=listbox1.get(selectedindex).split(" : ")[0]
+        print(infostr+"aa")
+        k=int(infostr)
         
     except IndexError:
         print("IndexError - No Member Key")
@@ -317,40 +357,42 @@ def findSelectedIndex():#리스트박스 2 클릭시 인덱스 가져오기 함�
     
     return targetindex  
 
-def changedesText(member={},menu=-1):
+def changedesText(member={},menu=-1):#리스트 박스 이벤트로 받은 정보 처리
     global desText
     print(member)
     desText.delete("1.0",END)
     if menu==-1:
-        desText.insert(END,"본 텍스트 창에 선택하신 멤버의 정보가 뜹니다.")
+        desText.insert(END,"멤버를 선택하셔야 본 텍스트 창에 정보가 뜹니다.")
     elif 0<=menu<=4:
         if member!={}:
             if menu==0:
                 for name in member['Name']:
-                    desText.insert(END,name+",")
+                    desText.insert(END,name+'\n')
             elif menu==1:
-                desText.insert(END,str(member["ID"]))
+                for id in member['ID']:
+                    desText.insert(END,id+'\n')
             elif menu==2:
                 desText.insert(END,str(member["number"]))
             elif menu==3:
-                desText.insert(END,str(member["where"]))
+                for where in member["where"]:
+                    desText.insert(END,where+'\n')
             elif menu==4:
-                print(member["description"])
-                desText.insert(END,str(member["description"]))
+                for description in member["description"]:
+                    desText.insert(END,description+'\n')
             else:
                 return
         else:
-            return
+            desText.insert(END,"보고 싶은 정보를 선택하셔야 본 텍스트 창에 정보가 뜹니다.")
     else:
         return
 
-def changeinfo(event):#리스트 박스1 클릭시 
+def changeinfo(event):#리스트 박스1 더블클릭시 
     global SELECTED_MEMBER
     global SELECTED_INDEX
     SELECTED_MEMBER=findSelectedMember()[0]
     changedesText(SELECTED_MEMBER,SELECTED_INDEX)
 
-def updateDesText(event):
+def updateDesText(event):#리스트 박스2 더블클릭시
     global SELECTED_MEMBER
     global SELECTED_INDEX
     SELECTED_INDEX=findSelectedIndex()
@@ -358,6 +400,13 @@ def updateDesText(event):
 
 
 def searchinfo():#검색 후 창 띄우기
+    global top
+
+    window=Toplevel(top)
+    window.geometry("500x500+100+100")
+    window.resizable(False,False)
+    window.title("멤버 검색결과 창")
+    window.iconbitmap(default=icon_path)
     pass
 
 
