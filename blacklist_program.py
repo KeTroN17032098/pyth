@@ -316,10 +316,18 @@ def showinfo():#상세정보 창 띄우기
         NameField=Frame(frame1)
         NameField.pack(side="top",fill='x')
 
-        NameLabel=Label(NameField,font=fontStyle,text="성함 : ")
+        NameLabel=Label(NameField,font=fontStyle,text="성함  :",width=10)
         NameLabel.pack(side="left",fill='y')
         NameText=scrolledtext_modifier(NameField,fontStyle,1,SELECTED_MEMBER['Name'])
         NameText.pack(side="right",fill='y')
+
+        IDField=Frame(frame1,relief="solid")
+        IDField.pack(side="top",fill='x')
+
+        IDLabel=Label(IDField,font=fontStyle,text="I D :",width=10)
+        IDLabel.pack(side="left",fill='y')
+        IDText=scrolledtext_modifier(IDField,fontStyle,1,SELECTED_MEMBER['ID'])
+        IDText.pack(side="right",fill='y')
         
 
         frame2=Frame(window,relief="solid",bd=2)
