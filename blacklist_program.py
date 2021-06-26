@@ -328,10 +328,38 @@ def showinfo():#상세정보 창 띄우기
         IDLabel.pack(side="left",fill='y')
         IDText=scrolledtext_modifier(IDField,fontStyle,1,SELECTED_MEMBER['ID'])
         IDText.pack(side="right",fill='y')
+
+        numberField=Frame(frame1,relief="solid")
+        numberField.pack(side="top",fill='x')
+
+        numberLabel=Label(numberField,font=fontStyle,text="적발건수 :",width=10)
+        numberLabel.pack(side="left",fill='y')
+        numberText=scrolledtext_modifier(numberField,fontStyle,1,SELECTED_MEMBER['number'])
+        numberText.pack(side="right",fill='y')
+
+        whereField=Frame(frame1,relief="solid")
+        whereField.pack(side="top",fill='x')
+
+        whereLabel=Label(whereField,font=fontStyle,text="장 소 :",width=10)
+        whereLabel.pack(side="left",fill='y')
+        whereText=scrolledtext_modifier(whereField,fontStyle,3,SELECTED_MEMBER['where'])
+        whereText.pack(side="right",fill='y')
+
+        descriptionField=Frame(frame1,relief="solid")
+        descriptionField.pack(side="top",fill='x')
+
+        descriptionLabel=Label(descriptionField,font=fontStyle,text="상세설명:",width=10)
+        descriptionLabel.pack(side="left",fill='y')
+        descriptionText=scrolledtext_modifier(descriptionField,fontStyle,5,SELECTED_MEMBER['description'])
+        descriptionText.pack(side="right",fill='y')
         
 
         frame2=Frame(window,relief="solid",bd=2)
         frame2.pack(side="bottom",fill='x')
+
+        buttonField1=Frame(frame2,relief="solid",bg=2)
+        buttonField1.pack(side="top",fill='x')
+        
 
 
 
