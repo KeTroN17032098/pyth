@@ -53,8 +53,12 @@ def startTodayResult():#오늘의 통계 기록 생성 및 불러드리기
         with open(todayname,'w') as fk:
             json.dump(today_result, fk,indent=4)
 
-def updateTodayResult():#기록 갱신
+def saveTodayResult():#기록 저장
     global today_result
     with open(checkTodayFilePath(),'w') as json_file:
         json.dump(today_result, json_file,indent=4) 
 
+if __name__ == '__main__':
+    Window=Tk()
+    
+    Window.mainloop()

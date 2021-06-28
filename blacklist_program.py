@@ -2,7 +2,7 @@ import json
 from tkinter import *
 import webbrowser
 import os.path
-import tkinter.ttk
+import tkinter.ttk as ttk
 from tkinter import messagebox
 from tkinter.filedialog import *
 from tkinter import scrolledtext
@@ -20,15 +20,14 @@ check_image_list=["checkbox/internet_service.png","checkbox/information.png","ch
 blacklist={}#메모리에 올린 멤버 lib
 places=["전자정보실",'안내데스크',"지혜열람실","미래열람실","문헌정보실","어린이실","북카페",'장애인실','시청각실','스터디실','식당/매점','문화교실']
 PLACE_NUMBER=len(places)
+SELECTED_INDEX=-1
+SELECTED_MEMBER={}
 
 def ctrlEvent(event):#crtl+c제외 키 블락
     if(12==event.state and event.keysym=='c' ):
         return
     else:
         return "break"
-
-SELECTED_INDEX=-1
-SELECTED_MEMBER={}
 
 def newFile():#새 파일 생성
     global blacklist
@@ -186,7 +185,6 @@ def addDetail(memberKey,newWhere,newDes):
         else:
             return False
             
-    
 
 def addNumberGui():#적발횟수 추가
     pass
@@ -199,6 +197,7 @@ def deleteMemberGui():#현재 보고 있는 멤버 삭제
 
 def Help():#사용법 메뉴 버튼 이벤트
     webbrowser.open("help.pdf")
+    
 def CopyRights():#저작권 설명 버튼 이벤트
     webbrowser.open("copyright.pdf")
 
@@ -325,7 +324,6 @@ def updateListBox2():#시작시 리스트박스 초기화
     listbox2.insert(END,"장소")
     listbox2.insert(END,"상세설명")
 
-
 def showinfo():#상세정보 창 띄우기
     global top
     global SELECTED_MEMBER
@@ -337,8 +335,13 @@ def showinfo():#상세정보 창 띄우기
         newWindow.title("정보 추가")
         newWindow.iconbitmap(default=icon_path)
         
-        listboxwhere=Listbox(newWindow)#스크롤 바 및 다중 선택 허용 또한 버튼을 누르면 예 아니오로 확인하고 예 누르면 저장 후 상세정보 창까지 삭제
-
+        comboboxwhere=ttk.Combobox(newWindow,values=places,state="readonly")
+        comboboxwhere.pack()
+        comboboxwhere.current(0)
+        #스크롤 바 및 다중 선택 허용 또한 버튼을 누르면 예 아니오로 확인하고 예 누르면 저장 후 상세정보 창까지 삭제
+        
+        
+        
     if SELECTED_MEMBER=={}:
         messagebox.showerror("멤버 선택 없음","정보를 열람하실 멤버를 선택해주세요.")
     else:
@@ -412,9 +415,6 @@ def showinfo():#상세정보 창 띄우기
         
         addDetailbutton=Button(buttonField2,text="정보 추가",height=2,width=15,font=fontStyle,command=addDetailGui)
         addDetailbutton.pack(side="right")
-        
-
-
 
 def findSelectedMember():#리스트박스1 선택된 멤버 가져오기
     global listbox1
@@ -488,7 +488,6 @@ def updateDesText(event):#리스트 박스2 더블클릭시
     global SELECTED_INDEX
     SELECTED_INDEX=findSelectedIndex()
     changedesText(SELECTED_MEMBER,SELECTED_INDEX)
-
 
 def searchinfo():#검색 후 창 띄우기
     global top
