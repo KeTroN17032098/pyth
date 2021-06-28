@@ -171,6 +171,7 @@ def addDetail(memberKey,newWhere,newDes):
     global places
     for member in blacklist['members']:
         if memberKey==member['key']:
+            member["number"]+=1
             now=datetime.datetime.now()#샘플 객체에 첫 제작 날 기록
             des="["+now.strftime("%Y-%m-%d %H:%M:%S")+"]  : "
             newTempds=des+newDes
