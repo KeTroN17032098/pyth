@@ -58,7 +58,7 @@ def saveTodayResult():#기록 저장
     with open(checkTodayFilePath(),'w') as json_file:
         json.dump(today_result, json_file,indent=4) 
 
-if __name__ == '__main__':
+if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
     Window=Tk()
     
     Window.mainloop()

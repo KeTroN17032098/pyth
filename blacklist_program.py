@@ -650,8 +650,16 @@ def updateDesText(event):#리스트 박스2 더블클릭시
     global SELECTED_INDEX
     SELECTED_INDEX=findSelectedIndex()
     changedesText(SELECTED_MEMBER,SELECTED_INDEX)
+    
+
 
 def searchinfo():#검색 후 창 띄우기
+    def redirecttoShowinfo():
+        global SELECTED_MEMBER
+        selMemKey=int(srchResult.get()[0])
+        SELECTED_MEMBER=findMember(selMemKey)[0]
+        showinfo()
+        subwindow.destroy()
     global top
     srchName=snText.get()
     srchID=siText.get()
@@ -674,21 +682,29 @@ def searchinfo():#검색 후 창 띄우기
 
         frame1=Frame(subwindow)
         frame1.pack()
-
-        srchResult=ttk.Combobox(frame1,font=fontStyle)
-        srchResult.pack()
+        
+        srchlist_val=[]
         
         for member in srchList:
             if member['Name']!=[]:
-                srchResult['values']+=member['Name'][0]
+                tmp=str(member['Key'])+':'+member['Name'][0]
             else:
-                srchResult['values']+=(member['Id'][0])
+                tmp=str(member['Key'])+':'+member['Id'][0]
+            
+            srchlist_val.append(tmp)
+
+        srchResult=ttk.Combobox(frame1,font=fontStyle,values=srchlist_val)
+        srchResult.pack()
+        
+        
         
         srchResult.set("검색결과")
 
         detailbutton=Button(frame1,font=fontStyle,text="상세 정보",command=redirecttoShowinfo)
+        detailbutton.pack()
 
-
+def searchinfoevent(event):
+    searchinfo()
 
 
 if __name__ == "__main__":
@@ -789,6 +805,7 @@ if __name__ == "__main__":
 
     snText=Entry(subFrame1,font=fontStyle)
     snText.pack()
+    snText.bind('<Return>',searchinfoevent)
 
     subFrame2=Frame(frame6)
     subFrame2.pack(side="bottom",fill='x')
@@ -798,6 +815,7 @@ if __name__ == "__main__":
 
     siText=Entry(subFrame2,font=fontStyle)
     siText.pack(side="top",fill='x')
+    siText.bind('<Return>',searchinfoevent)
 
     subFrame3=Frame(top)
     subFrame3.pack(side="top",fill='both',expand=True)
