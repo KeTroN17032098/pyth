@@ -1,3 +1,4 @@
+#encode=UTF-8
 import json
 from tkinter import *
 import webbrowser
@@ -115,15 +116,16 @@ def memberlistboxUpdate():#리스트박스1의 업데이트 함수
     global listbox1
 
     listbox1.delete(0,END)
-    for i in range(1,blacklist['len']+1):
-        if blacklist['members'][i]['Name']!=[""]:
-            listbox1.insert(END,str(blacklist['members'][i]['Key'])+" : "+str(blacklist['members'][i]['Name']))
-        else:
-            listbox1.insert(END,str(blacklist['members'][i]['Key'])+" : "+str(blacklist['members'][i]['ID']))
+    if blacklist['len']>0:
+        for i in range(1,blacklist['len']+1):
+            if blacklist['members'][i]['Name']!=[""]:
+                listbox1.insert(END,str(blacklist['members'][i]['Key'])+" : "+str(blacklist['members'][i]['Name']))
+            else:
+                listbox1.insert(END,str(blacklist['members'][i]['Key'])+" : "+str(blacklist['members'][i]['ID']))
 
-def scrolledtext_modifier(frame,fontstyle,height,content):#스크롤 텍스트 설정 간편화
+def scrolledtext_modifier(frame,fontstyle,height,content,isbind=TRUE):#스크롤 텍스트 설정 간편화
     tempText=scrolledtext.ScrolledText(frame)
-    tempText.bind("<Key>",lambda e: ctrlEvent(e))
+    if isbind:tempText.bind("<Key>",lambda e: ctrlEvent(e))
     tempText.config(font=fontstyle,height=height)
     if type(content)==str:
         tempText.insert(END,content)
@@ -144,57 +146,77 @@ def imageModifier(FILE_PATH,x,y):#아미지 사이즈 재설정 함수
     resized_img1=ImageTk.PhotoImage(img1)
     return resized_img1
 
-def deleteMember(info):#입력 정보로 멤버 삭제(수정 필요)
+def deleteMember(info):#입력 정보로 멤버 검색 후 삭제
     global blacklist
-    for member in blacklist['members']:
-        if info in member['Name']:
-            member1=member
-            member1["Key"]=blacklist['ded_len']+1
-            blacklist['deleted_member'].append(member1)
-            blacklist['members'].remove(member)
-            blacklist['ded_len']+=1
-            blacklist["len"]-=1
-            break
-        elif info in member['ID']:
-            member1=member
-            member1["Key"]=blacklist['ded_len']+1
-            blacklist['deleted_member'].append(member1)
-            blacklist['members'].remove(member)
-            blacklist['ded_len']+=1
-            blacklist["len"]-=1
-            break
+    global SELECTED_MEMBER
+    Targets=findMember(info)
+    if Targets==[]:
+        return FALSE
     
-    saveFile()
-    print (blacklist['members'])
+    targetint=len(Targets)
+    msgtxt=""
+    for member in Targets:
+        if member["Name"]!="":
+            msgtxt+"["
+            msgtxt+=member["Name"][0]
+            msgtxt+="]"
+        else:
+            msgtxt+"["
+            msgtxt+=member["ID"][0]
+            msgtxt+="]"
+    MSG=messagebox.askokcancel("정말로 삭제하시겠습니까?",msgtxt+"과 같은 총 "+str(targetint)+"멤버들이 삭제됩니다.\n정말 삭제하겠습니까?")
+    if MSG:
+        deleted_list=[]
+        for member in Targets:
+            for before_member in blacklist['members']:
+                if member['Key']==before_member['Key']:
+                    blacklist['deleted_member'].append(before_member)
+                    k=before_member
+                    blacklist['members'].remove(before_member)
+                    blacklist['len']-=1
+                    blacklist['ded_len']+=1
+                    deleted_list.append(k)
+        print(deleted_list)
+        messagebox.showinfo("삭제완료!","삭제 완료되었습니다.")
+        print (blacklist['members'])
+        print(blacklist['deleted_member'])
+        saveFile()
+        memberlistboxUpdate()
+        SELECTED_MEMBER={}
+        return TRUE
+    else:
+        return FALSE
+
     
-def addDetail(memberKey,newWhere,newDes):
+def addDetail(memberKey,newName,newID,newWhere,newDes):
     global places
     for member in blacklist['members']:
-        if memberKey==member['key']:
+        if memberKey==member['Key']:
             member["number"]+=1
-            now=datetime.datetime.now()#샘플 객체에 첫 제작 날 기록
-            des="["+now.strftime("%Y-%m-%d %H:%M:%S")+"]  : "
-            newTempds=des+newDes
             if newDes!="":
+                now=datetime.datetime.now()#샘플 객체에 첫 제작 날 기록
+                des="["+now.strftime("%Y-%m-%d %H:%M:%S")+"]  : "
+                newTempds=des+newDes
                 member['description'].append(newTempds)
+            if newName!="" and newName not in member['Name']:
+                member['Name'].append(newName)
+            if newID!="" and newID not in member['ID']:
+                member['ID'].append(newID)
             for v in member['where']:
                 if v==newWhere or newWhere not in places:
                     return True
                
             member['where'].append(newWhere)
+            saveFile()
             return True
         else:
-            return False
+            if newName in member['Name'] or newID in member['ID']:
+                return False
+    
+    return False
             
 
-def addNumberGui():#적발횟수 추가
-    pass
 
-def changeDetailGui():#상세정보 수정
-    pass
-
-def deleteMemberGui():#현재 보고 있는 멤버 삭제
-    pass
 
 def Help():#사용법 메뉴 버튼 이벤트
     webbrowser.open("help.pdf")
@@ -210,7 +232,7 @@ def addMemberMenu():
     window.title("멤버 추가 창")
     window.iconbitmap(default=icon_path)
     def addbuttonevent():
-        key=blacklist['len']
+        key=blacklist['len']+blacklist['ded_len']
         names=nameText.get("1.0","end")
         name=names.splitlines()
         ids=idText.get("1.0","end")
@@ -315,6 +337,7 @@ def addMemberMenu():
     desText.place(x=40,y=630)
     button.place(x=175,y=750)
 
+
 def updateListBox2():#시작시 리스트박스 초기화
     global listbox2
 
@@ -328,21 +351,158 @@ def updateListBox2():#시작시 리스트박스 초기화
 def showinfo():#상세정보 창 띄우기
     global top
     global SELECTED_MEMBER
-
+    def updateShowInfo():
+        NameText.delete("1.0","end")
+        for name in SELECTED_MEMBER['Name']:
+            NameText.insert(END,name+'\n')
+        IDText.delete("1.0","end")
+        for ID in SELECTED_MEMBER['ID']:
+            IDText.insert(END,ID+'\n')
+        whereText.delete("1.0","end")
+        for where in SELECTED_MEMBER['where']:
+            whereText.insert(END,where+'\n')
+        descriptionText.delete("1.0","end")
+        for description in SELECTED_MEMBER['description']:
+            descriptionText.insert(END,description+'\n')
+        numberText.delete("1.0","end")
+        numberText.insert(END,SELECTED_MEMBER['number']+'\n')
     def addDetailGui():#상세정보 추가 버튼 누를시 창 띄우기
+        def addDetailGuiButton():
+            global SELECTED_MEMBER
+            msgtxt=""
+            if SELECTED_MEMBER['Name']!=[""]:
+                msgtxt+=SELECTED_MEMBER['Name'][0]
+            else:
+                msgtxt+=SELECTED_MEMBER['ID'][0]
+            MSG=messagebox.askquestion("정보 추가 확인",msgtxt+"님에게 입력하신 정보를 추가하시겠습니까?")
+            if MSG=='yes':
+                tmpnames=textname.get("1.0",'end')
+                tmpname=tmpnames.splitlines()
+                tmpIDs=textID.get("1.0",'end')
+                tmpID=tmpIDs.splitlines()
+                tmpplace=comboboxwhere.get()
+                tmpdes=textdes.get("1.0",'end')
+                for name in tmpname:
+                    for ID in tmpID:
+                        if addDetail(SELECTED_MEMBER['Key'],name,ID,tmpplace,tmpdes)==False:
+                            return
+                SELECTED_MEMBER=findMember(SELECTED_MEMBER['Key'])[0]
+                print(SELECTED_MEMBER)
+                messagebox.showinfo("정보 추가 완료",'입력하신 정보를 추가완료.')
+                saveFile()
+                updateShowInfo()
+                window.lift()
+                newWindow.destroy()
+            else:
+                messagebox.showinfo("정보 추가 취소",'입력하신 정보를 추가하는 것을 취소하셨습니다.')
+
         newWindow=Toplevel(window)
         newWindow.geometry("300x300")
         newWindow.resizable(False,False)
         newWindow.title("정보 추가")
         newWindow.iconbitmap(default=icon_path)
+
+        framename=Frame(newWindow)
+        framename.pack(side="top",fill="x")
+
+        labelname=Label(framename,font=fontStyle,text="이름 :",height=1)
+        labelname.pack(side="left")
         
-        comboboxwhere=ttk.Combobox(newWindow,values=places,state="readonly")
-        comboboxwhere.pack()
-        comboboxwhere.current(0)
-        #스크롤 바 및 다중 선택 허용 또한 버튼을 누르면 예 아니오로 확인하고 예 누르면 저장 후 상세정보 창까지 삭제
-        
-        
-        
+        textname=Text(framename,font=fontStyle,height=2)
+        textname.pack(side="right")
+
+        frameID=Frame(newWindow)
+        frameID.pack(side="top",fill="x")
+
+        labelID=Label(frameID,font=fontStyle,text="ID :",height=1)
+        labelID.pack(side="left")
+
+        textID=Text(frameID,font=fontStyle,height=2)
+        textID.pack(side="right")
+
+        framewhere=Frame(newWindow)
+        framewhere.pack(side="top",fill="x")
+
+        labelwhere=Label(framewhere,font=fontStyle,text="장소 :",height=1)
+        labelwhere.pack(side="left")
+
+        comboboxwhere=ttk.Combobox(framewhere,values=places,state="readonly",height=1)
+        comboboxwhere.pack(side="right")
+        comboboxwhere.set("추가할 장소")
+
+        framedes=Frame(newWindow)
+        framedes.pack(side="top",fill="x")
+
+        labeldes=Label(framedes,font=fontStyle,text="상세 설명")
+        labeldes.pack(side="top",fill='x')
+
+        textdes=scrolledtext_modifier(framedes,fontStyle,4,"원하는 내용을 입력하세요",FALSE)
+        textdes.pack(fill="x")
+
+        framebuttons=Frame(newWindow)
+        framebuttons.pack(side="top",fill="both")
+
+        buttonsubmit=Button(framebuttons,font=fontStyle,text="정보 추가",command=addDetailGuiButton)
+        buttonsubmit.pack(side="top",fill="y")
+    def addNumberGui():#적발횟수 추가
+        global SELECTED_MEMBER
+        for member in blacklist['members']:
+            if SELECTED_MEMBER['Key'] == member['Key']:
+                member['number']+=1
+                SELECTED_MEMBER=member
+                numberText.delete("1.0","end")
+                numberText.insert(END,SELECTED_MEMBER['number'])
+                saveFile()
+                break
+
+    def changeDetailGui():#상세정보 수정
+        def CDGButton():
+            global SELECTED_MEMBER
+            if changedText.get("1.0",'end')!="":
+                modifiedText=changedText.get("1.0",'end').splitlines()
+                msgtxt=""
+                for txt in SELECTED_MEMBER['description']:
+                    msgtxt+=txt
+                    msgtxt+="\n"
+                msgtxt+="에서\n"
+                for txt in modifiedText:
+                    msgtxt+=txt
+                    msgtxt+="\n"
+                MSG=messagebox.askyesno("상세정보 변경","정말로 현재 텍스트인 "+msgtxt+"로 바꾸겠습니까>")
+                if MSG:
+                   for member in blacklist['members']:
+                    if SELECTED_MEMBER['Key'] == member['Key']:
+                        member['description']=modifiedText
+                        SELECTED_MEMBER=member
+                        descriptionText.delete("1.0","end")
+                        for taxt in SELECTED_MEMBER['description']:
+                            descriptionText.insert('end', taxt+'\n')
+                        saveFile()
+                        window.lift()
+                        newWindow.destroy()
+                        break
+            else: return
+            
+        newWindow=Toplevel(window)
+        newWindow.geometry("300x300")
+        newWindow.resizable(False,False)
+        newWindow.title("정보 추가")
+        newWindow.iconbitmap(default=icon_path)
+        changedLabel=Label(newWindow,font=fontStyle,text="상세정보")
+        changedLabel.pack()
+        changedText=scrolledtext_modifier(newWindow,fontStyle,8,"",FALSE)
+        changedText.pack()
+        for des in SELECTED_MEMBER['description']:
+            changedText.insert("end",des+'\n')
+        changedButton=Button(newWindow,font=fontStyle,text="수정",command=CDGButton)
+        changedButton.pack()
+    def deleteMemberGui():#현재 보고 있는 멤버 삭제
+        if deleteMember(SELECTED_MEMBER['Key']):
+            top.lift()
+            window.destroy()
+        else:
+            window.lift()
+
     if SELECTED_MEMBER=={}:
         messagebox.showerror("멤버 선택 없음","정보를 열람하실 멤버를 선택해주세요.")
     else:
@@ -402,7 +562,7 @@ def showinfo():#상세정보 창 띄우기
         buttonField1=Frame(frame2,relief="solid",bd=2)
         buttonField1.pack(side="top")
         
-        changeDetailButton=Button(buttonField1,text="정보 수정",height=2,width=15,font=fontStyle,command=changeDetailGui)
+        changeDetailButton=Button(buttonField1,text="상세정보 수정",height=2,width=15,font=fontStyle,command=changeDetailGui)
         changeDetailButton.pack(side="left")
         
         addNumberButton=Button(buttonField1,text="적발횟수 추가",height=2,width=15,font=fontStyle,command=addNumberGui)
@@ -483,6 +643,7 @@ def changeinfo(event):#리스트 박스1 더블클릭시
     global SELECTED_INDEX
     SELECTED_MEMBER=findSelectedMember()[0]
     changedesText(SELECTED_MEMBER,SELECTED_INDEX)
+    if button1['state']=='disabled':button1.config(state="normal")
 
 def updateDesText(event):#리스트 박스2 더블클릭시
     global SELECTED_MEMBER
@@ -492,13 +653,41 @@ def updateDesText(event):#리스트 박스2 더블클릭시
 
 def searchinfo():#검색 후 창 띄우기
     global top
+    srchName=snText.get()
+    srchID=siText.get()
+    if srchName=="" and srchID=="":
+        messagebox.showerror("검색 오류","아무것도 입력되지 않았습니다.")
+        return
+    else:
+        Namelist=findMember(srchName)
+        IDlist=findMember(srchID)
+        allList=Namelist+IDlist
+        srchList=[]
+        for v in allList:
+            if v not in srchList:
+                srchList.append(v)
+        subwindow=Toplevel(top)
+        subwindow.geometry("300x100")
+        subwindow.resizable(False,False)
+        subwindow.title("검색 결과")
+        subwindow.iconbitmap(default=icon_path)
 
-    window=Toplevel(top)
-    window.geometry("500x500+100+100")
-    window.resizable(False,False)
-    window.title("멤버 검색결과 창")
-    window.iconbitmap(default=icon_path)
-    pass
+        frame1=Frame(subwindow)
+        frame1.pack()
+
+        srchResult=ttk.Combobox(frame1,font=fontStyle)
+        srchResult.pack()
+        
+        for member in srchList:
+            if member['Name']!=[]:
+                srchResult['values']+=member['Name'][0]
+            else:
+                srchResult['values']+=(member['Id'][0])
+        
+        srchResult.set("검색결과")
+
+        detailbutton=Button(frame1,font=fontStyle,text="상세 정보",command=redirecttoShowinfo)
+
 
 
 
@@ -547,7 +736,7 @@ if __name__ == "__main__":
     frame3=Frame(top,relief="solid",bd=2)
     frame3.pack(fill='x')
 
-    button1=Button(frame3,text="멤버 상세정보",overrelief="solid",command=showinfo,font=fontStyle)
+    button1=Button(frame3,text="멤버 상세정보",overrelief="solid",command=showinfo,font=fontStyle,state="disabled")
     button1.pack(fill='x')
 
     #프레임2 
@@ -598,7 +787,7 @@ if __name__ == "__main__":
     snLabel=Label(subFrame1,font=fontStyle,text="이름 :",height=1)
     snLabel.pack(side="left")
 
-    snText=Text(subFrame1,font=fontStyle,height=1)
+    snText=Entry(subFrame1,font=fontStyle)
     snText.pack()
 
     subFrame2=Frame(frame6)
@@ -607,7 +796,7 @@ if __name__ == "__main__":
     siLabel=Label(subFrame2,font=fontStyle,text="아이디 :",height=1)
     siLabel.pack(side="left")
 
-    siText=Text(subFrame2,font=fontStyle,height=1)
+    siText=Entry(subFrame2,font=fontStyle)
     siText.pack(side="top",fill='x')
 
     subFrame3=Frame(top)
