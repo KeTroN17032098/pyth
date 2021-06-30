@@ -1,0 +1,30 @@
+{
+    "notebook": [
+        {
+            "Male": 0,
+            "Female": 0,
+            "date": "20210701"
+        }
+    ],
+    "print": [
+        {
+            "Male": 0,
+            "Female": 0,
+            "date": "20210701"
+        }
+    ],
+    "watch": [
+        {
+            "Male": 0,
+            "Female": 0,
+            "date": "20210701"
+        }
+    ],
+    "type": [
+        {
+            "info": "today",
+            "date": "2021-07-01 00:05:06.744843",
+            "user": "rayan"
+        }
+    ]
+}

@@ -12,17 +12,13 @@ from PIL import Image, ImageTk
 import getpass as gp
 
 today_result={}
-today_file_path='data/today_result_'
-
-def checkTodayFilePath():#오늘의 기록 파일 이름 체크
-    now=datetime.datetime.now()#샘플 객체에 첫 제작 날 기록
-    des="["+now.strftime("%Y-%m-%d")+"]"
-    todayname=today_file_path+des+'.json'
-    return todayname
-
+today_file_path='data/today_result.json'
+icon_path='./logo.ico'
+def today_date():
+    return datetime.datetime.today().strftime("%Y-%m-%d")
 def startTodayResult():#오늘의 통계 기록 생성 및 불러드리기
     global today_result
-    todayname=checkTodayFilePath()
+    todayname=today_file_path
     if os.path.exists(todayname):
         with open(todayname, 'r') as fk:
             today_result=json.load(fk)
@@ -34,15 +30,18 @@ def startTodayResult():#오늘의 통계 기록 생성 및 불러드리기
         today_result['type']=[]
         today_result['notebook'].append({
             "Male":0,
-            "Female":0
+            "Female":0,
+            "date":datetime.datetime.today().strftime("%Y%m%d")
         })
         today_result['print'].append({
             "Male":0,
-            "Female":0
+            "Female":0,
+            "date":datetime.datetime.today().strftime("%Y%m%d")
         })
         today_result['watch'].append({
             "Male":0,
-            "Female":0
+            "Female":0,
+            "date":datetime.datetime.today().strftime("%Y%m%d")
         })
         today_result['type'].append({
             "info":"today",
@@ -55,10 +54,15 @@ def startTodayResult():#오늘의 통계 기록 생성 및 불러드리기
 
 def saveTodayResult():#기록 저장
     global today_result
-    with open(checkTodayFilePath(),'w') as json_file:
+    with open(today_file_path,'w') as json_file:
         json.dump(today_result, json_file,indent=4) 
 
 if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
+    startTodayResult()
     Window=Tk()
+    Window.title("전자정보실 ["+today_date()+"] 기록")
+    Window.geometry("500x300")
+    Window.iconbitmap(default=icon_path)
+    Window.resizable(False,False)
     
     Window.mainloop()
