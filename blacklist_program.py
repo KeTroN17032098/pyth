@@ -15,8 +15,8 @@ import getpass as gp
 
 
 file_path="data/blacklist.json"
-logo_path="./logo.png"
-icon_path="./logo.ico"
+logo_path="checkbox/logo.png"
+icon_path="checkbox/logo.ico"
 check_image_list=["checkbox/internet_service.png","checkbox/information.png","checkbox/jihae.png","checkbox/mirae.png","checkbox/moonhun.png","checkbox/children.png","checkbox/bookcafe.png","checkbox/disabled.png","checkbox/watchroom.png","checkbox/study.png","checkbox/cafeteria.png","checkbox/munhwa.png","checkbox/name.png","checkbox/ID.png","checkbox/place.png","checkbox/detail.png"]
 blacklist={}#메모리에 올린 멤버 lib
 places=["전자정보실",'안내데스크',"지혜열람실","미래열람실","문헌정보실","어린이실","북카페",'장애인실','시청각실','스터디실','식당/매점','문화교실']
