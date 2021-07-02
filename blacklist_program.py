@@ -157,13 +157,13 @@ def deleteMember(info):#입력 정보로 멤버 검색 후 삭제
     msgtxt=""
     for member in Targets:
         if member["Name"]!="":
-            msgtxt+"["
+            msgtxt+="["
             msgtxt+=member["Name"][0]
-            msgtxt+="]"
+            msgtxt+="] "
         else:
-            msgtxt+"["
+            msgtxt+="["
             msgtxt+=member["ID"][0]
-            msgtxt+="]"
+            msgtxt+="] "
     MSG=messagebox.askokcancel("정말로 삭제하시겠습니까?",msgtxt+"과 같은 총 "+str(targetint)+"멤버들이 삭제됩니다.\n정말 삭제하겠습니까?")
     if MSG:
         deleted_list=[]

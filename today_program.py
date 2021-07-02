@@ -14,6 +14,9 @@ import getpass as gp
 today_result={}
 today_file_path='data/today_result.json'
 icon_path='./logo.ico'
+
+
+
 def today_date():
     return datetime.datetime.today().strftime("%Y-%m-%d")
 def startTodayResult():#오늘의 통계 기록 생성 및 불러드리기
@@ -64,5 +67,16 @@ if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록
     Window.geometry("500x300")
     Window.iconbitmap(default=icon_path)
     Window.resizable(False,False)
+    
+    fontStyle=tkFont.Font(family="Lucida Grande",size=15)
+    fontStyle2=tkFont.Font(family="Lucida Grande",size=25)
+    
+    dateField=Frame(Window)
+    dateField.pack(fill="x")
+    
+    a=today_date().center(28," ")
+    DateEntry=Entry(dateField,font=fontStyle2)
+    DateEntry.insert(END,a)
+    DateEntry.pack()
     
     Window.mainloop()
