@@ -2,7 +2,7 @@ import json
 from tkinter import *
 import webbrowser
 import os.path
-import tkinter.ttk
+import tkinter.ttk as ttk
 from tkinter import messagebox
 from tkinter.filedialog import *
 from tkinter import scrolledtext
@@ -10,15 +10,20 @@ import tkinter.font as tkFont
 import datetime
 from PIL import Image, ImageTk
 import getpass as gp
+from multiprocessing import Process, Queue
+import threading
 
 today_result={}
 today_file_path='data/today_result.json'
-icon_path='./logo.ico'
+icon_path='checkbox/logo.ico'
 
 
 
 def today_date():
     return datetime.datetime.today().strftime("%Y-%m-%d")
+
+def now_time():
+    return today_date()+datetime.datetime.now().strftime(" %I:%M %p")
 def startTodayResult():#오늘의 통계 기록 생성 및 불러드리기
     global today_result
     todayname=today_file_path
@@ -60,6 +65,20 @@ def saveTodayResult():#기록 저장
     with open(today_file_path,'w') as json_file:
         json.dump(today_result, json_file,indent=4) 
 
+def TimeUpdate():
+    global DateEntry
+    DateEntry.delete(0,END)
+    now=now_time().center(20," ")
+    DateEntry.insert(END,now)
+
+def updateText(interval):
+    try:
+        TimeUpdate()
+    except RuntimeError:
+        return
+
+    threading.Timer(interval,updateText,[interval]).start()
+
 if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
     startTodayResult()
     Window=Tk()
@@ -74,9 +93,14 @@ if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록
     dateField=Frame(Window)
     dateField.pack(fill="x")
     
-    a=today_date().center(28," ")
-    DateEntry=Entry(dateField,font=fontStyle2)
-    DateEntry.insert(END,a)
+    DateEntry=Entry(dateField,font=fontStyle2,width=19)
     DateEntry.pack()
+
+    DataField=Frame(Window)
+    DataField.pack(fill="x")
+
+    DataTable=ttk.Treeview(DataField)
+
+    updateText(2)
     
     Window.mainloop()

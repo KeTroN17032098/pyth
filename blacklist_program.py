@@ -744,7 +744,7 @@ if __name__ == "__main__":
 
     memberlistboxUpdate()#첫 구동시 업데이트
     #프레임1 내부 객체 위치 pack
-    scrollbar1.pack(side="right")
+    scrollbar1.pack(side="right",fill="y")
     listbox1.pack(side="left")
     listbox1.bind("<Double-Button-1>",changeinfo)
 
