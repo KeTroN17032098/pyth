@@ -16,6 +16,7 @@ import threading
 today_result={}
 today_file_path='data/today_result.json'
 icon_path='checkbox/logo.ico'
+colunms_name=['Date(날짜)','노트북 남성','노트북 여성','프린트 남성','프린트 여성','관내열람 남성','관내열람 여성']
 
 
 
@@ -65,6 +66,18 @@ def saveTodayResult():#기록 저장
     global today_result
     with open(today_file_path,'w') as json_file:
         json.dump(today_result, json_file,indent=4) 
+class Table(ttk.Treeview):
+    def __init__(self,master=None,columns_len=1):
+        super().__init__(master)
+        self.master = master
+        print(type(self['columns']))
+        self['columns']=()
+        for i in range(1,columns_len+1):
+            self['columns']+=i
+        print(self['columns'])
+        self['displaycolumns']=self['columns']
+        print(self['displaycolumns'])
+        self.pack()
 
 class Application(Frame):
     def __init__(self,master=None):
@@ -79,7 +92,7 @@ class Application(Frame):
         self.master.iconbitmap(default=icon_path)
         self.master.resizable(False,False)
         self.master.title("전자정보실 "+today_date()+"일 기록")
-        self.master.geometry("500x300")
+        self.master.geometry("700x350")
 
     def create_menu(self):
         pass
@@ -88,6 +101,7 @@ class Application(Frame):
         self.fontStyle=tkFont.Font(family="Lucida Grande",size=15)
         self.fontStyle2=tkFont.Font(family="Lucida Grande",size=25)
         self.create_DateField()
+        self.create_TableField()
         
     def create_DateField(self):
         self.dateField=Frame(self)
@@ -97,15 +111,25 @@ class Application(Frame):
         self.DateEntry.pack()
         self.updateDateEntry()
     
+    def create_TableField(self):
+        self.TableField=Frame(self)
+        self.TableField.pack(fill="x")
+
+        '''self.Table=ttk.Treeview(self.TableField,columns=['1','2'],displaycolumns=['1','2'])
+        self.Table.pack()'''
+        self.Table=Table(self.TableField,columns_len=3)
+        
+
     def updateDateEntry(self):
         try:
             self.DateEntry.delete(0,END)
             now=now_time().center(21," ")
             self.DateEntry.insert(END,now)
         except RuntimeError:
-            messagebox.showinfo("시간 업데이트 오류!")
+            print(threading.current_thread().name)
             return
         threading.Timer(1,self.updateDateEntry).start()
+
 
 if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
     root=Tk()
