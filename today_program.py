@@ -7,6 +7,7 @@ from tkinter import messagebox
 from tkinter.filedialog import *
 from tkinter import scrolledtext
 import tkinter.font as tkFont
+import tkinter as tk
 import datetime
 from PIL import Image, ImageTk
 import getpass as gp
@@ -16,7 +17,7 @@ import threading
 today_result={}
 today_file_path='data/today_result.json'
 icon_path='checkbox/logo.ico'
-colunms_name=['Date(날짜)','노트북 남성','노트북 여성','프린트 남성','프린트 여성','관내열람 남성','관내열람 여성']
+columns_name=['Date(날짜)','노트북 남성','노트북 여성','프린트 남성','프린트 여성','관내열람 남성','관내열람 여성']
 
 
 
@@ -66,18 +67,25 @@ def saveTodayResult():#기록 저장
     global today_result
     with open(today_file_path,'w') as json_file:
         json.dump(today_result, json_file,indent=4) 
+        
 class Table(ttk.Treeview):
-    def __init__(self,master=None,columns_len=1):
+    def __init__(self,master=None,columns=[]):
         super().__init__(master)
         self.master = master
-        print(type(self['columns']))
-        self['columns']=()
-        for i in range(1,columns_len+1):
-            self['columns']+=i
-        print(self['columns'])
-        self['displaycolumns']=self['columns']
-        print(self['displaycolumns'])
+        self.WIDTH=100
+        self.MINWIDTH=30
+        self.set_columns(columns)
         self.pack()
+        
+    def set_columns(self,columns=[]):
+        if columns==[]:
+            return
+        if len(columns)==1:
+            self.column('#0',width=self.WIDTH,minwidth=self.MINWIDTH,stretch=tk.NO)
+            self.heading('#0',text=columns[0],anchor=tk.W)
+        else:
+            pass
+        
 
 class Application(Frame):
     def __init__(self,master=None):
@@ -112,12 +120,13 @@ class Application(Frame):
         self.updateDateEntry()
     
     def create_TableField(self):
+        global columns_name
         self.TableField=Frame(self)
         self.TableField.pack(fill="x")
 
         '''self.Table=ttk.Treeview(self.TableField,columns=['1','2'],displaycolumns=['1','2'])
         self.Table.pack()'''
-        self.Table=Table(self.TableField,columns_len=3)
+        self.Table=Table(self.TableField,columns=["a"])
         
 
     def updateDateEntry(self):
