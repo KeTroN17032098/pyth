@@ -48,28 +48,56 @@ class Today_Result(dict):
             "Female":0,
             "date":today_date(),
             "where":"notebook"
-        })
+            })
             self['print'].append({
             "Male":0,
             "Female":0,
             "date":today_date(),
             "where":"print"
-        })
+            })
             self['watch'].append({
             "Male":0,
             "Female":0,
             "date":today_date(),
             "where":"watch"
-        })
+            })
             print(self)
             with open(self.filepath,'w') as fk:
                 json.dump(self, fk,indent=4)
+            
+        self.set()
         
+    def set(self):
+        print(self.show_data())
+
+
+
     def save(self):
         with open(self.filepath,'w') as f:
             json.dump(self,f,indent=4)
-            
-    def input(self,where="",sex="",count=1):
+
+    def initialize_today(self):
+        TODAY_NOTEBOOK_INDEX=-1
+        print(self)
+        for data in self['notebook']:
+            if data['date']==today_date():
+                TODAY_NOTEBOOK_INDEX=self['notebook'].index(data)
+                print(TODAY_NOTEBOOK_INDEX)
+        if TODAY_NOTEBOOK_INDEX==-1:
+            tmp={
+            "Male":0,
+            "Female":0,
+            "date":today_date(),
+            "where":"notebook"
+            }
+            self['notebook'].append(tmp)
+            TODAY_NOTEBOOK_INDEX=self['notebook'].index(data)
+            print(TODAY_NOTEBOOK_INDEX)
+        return TODAY_NOTEBOOK_INDEX
+
+        
+
+    def add_today(self,where="",sex="",count=1):
         is_completed=FALSE
         if where=="" or sex=="":
             messagebox.showerror("Error",'장소와 성별을 입력해주세요.')
@@ -93,6 +121,7 @@ class Today_Result(dict):
             'sex':sex,
             'isCompleted':is_completed
         })
+        return is_completed
     
     def show_data(self,time=today_date()):
         tmp=[]
@@ -147,6 +176,8 @@ class Application(Frame):
         super().__init__(master)
         self.master = master
         self.savefile = savefile
+        print(type(self.savefile))
+        self.savefile.initialize_today()
         self.window_set()
         self.pack()
         self.create_menu()
@@ -199,5 +230,6 @@ class Application(Frame):
 if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
     root=Tk()
     tr=Today_Result()
+    print(tr)
     app=Application(master=root,savefile=tr)
     app.mainloop()
