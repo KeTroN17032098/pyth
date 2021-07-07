@@ -17,7 +17,7 @@ import threading
 today_result={}
 today_file_path='data/today_result.json'
 icon_path='checkbox/logo.ico'
-columns_name=['Date(날짜)','노트북 남성','노트북 여성','프린트 남성','프린트 여성','관내열람 남성','관내열람 여성']
+columns_name=['노트북 남성','노트북 여성','프린트 남성','프린트 여성','관내열람 남성','관내열람 여성']
 
 
 
@@ -27,70 +27,126 @@ def today_date():
 def now_time():
     return today_date()+datetime.datetime.now().strftime(" %I:%M:%S %p")
     
-def startTodayResult():#오늘의 통계 기록 생성 및 불러드리기
-    global today_result
-    todayname=today_file_path
-    if os.path.exists(todayname):
-        with open(todayname, 'r') as fk:
-            today_result=json.load(fk)
-            print(today_result)
-    else:
-        today_result['notebook']=[]
-        today_result['print']=[]
-        today_result['watch']=[]
-        today_result['type']=[]
-        today_result['notebook'].append({
-            "Male":0,
-            "Female":0,
-            "date":datetime.datetime.today().strftime("%Y%m%d")
-        })
-        today_result['print'].append({
-            "Male":0,
-            "Female":0,
-            "date":datetime.datetime.today().strftime("%Y%m%d")
-        })
-        today_result['watch'].append({
-            "Male":0,
-            "Female":0,
-            "date":datetime.datetime.today().strftime("%Y%m%d")
-        })
-        today_result['type'].append({
-            "info":"today",
-            "date":str(datetime.datetime.now()),
-            "user":gp.getuser()
-        })
-        print(today_result)
-        with open(todayname,'w') as fk:
-            json.dump(today_result, fk,indent=4)
 
-def saveTodayResult():#기록 저장
-    global today_result
-    with open(today_file_path,'w') as json_file:
-        json.dump(today_result, json_file,indent=4) 
         
+class Today_Result(dict):
+    def __init__(self):
+        self.filepath=today_file_path
+        if os.path.isfile(self.filepath):
+            with open(self.filepath,'r') as load:
+                self=json.load(load)
+                print(self)
+        else:
+            self['notebook']=[]
+            self['print']=[]
+            self['watch']=[]
+            self['inputs']=[]#추가내역 기록
+            self['cumulative']=0#전체 누적 이용자 수
+            self['typecode']="TR"#데이터 타입
+            self['notebook'].append({
+            "Male":0,
+            "Female":0,
+            "date":today_date(),
+            "where":"notebook"
+        })
+            self['print'].append({
+            "Male":0,
+            "Female":0,
+            "date":today_date(),
+            "where":"print"
+        })
+            self['watch'].append({
+            "Male":0,
+            "Female":0,
+            "date":today_date(),
+            "where":"watch"
+        })
+            print(self)
+            with open(self.filepath,'w') as fk:
+                json.dump(self, fk,indent=4)
+        
+    def save(self):
+        with open(self.filepath,'w') as f:
+            json.dump(self,f,indent=4)
+            
+    def input(self,where="",sex="",count=1):
+        is_completed=FALSE
+        if where=="" or sex=="":
+            messagebox.showerror("Error",'장소와 성별을 입력해주세요.')
+        elif sex not in ["Male", "Female"]:
+            messagebox.showerror("Invalid Input",'성별을 제대로 입력해주십시오.')
+        elif where not in ["notebook",'print','watch']:
+            messagebox.showerror("Invalid Input",'장소를 제대로 입력해주십시오.')
+        elif count<0:
+            messagebox.showerror("Invalid Input",'인원 수를 제대로 입력해주십시오.')
+        else:
+            for data in self[where]:
+                if data['date']==today_date():
+                    data[sex]+=count
+                    is_completed=TRUE
+                    break
+        self['input'].append({
+            "who":gp.getuser(),
+            'when':now_time(),
+            "where":where,
+            'count':count,
+            'sex':sex,
+            'isCompleted':is_completed
+        })
+    
+    def show_data(self,time=today_date()):
+        tmp=[]
+        for data in self['notebook']:
+            if data['date']==time:
+                tmp.append(data)
+        for data in self['print']:
+            if data['date']==time:
+                tmp.append(data)
+        for data in self['watch']:
+            if data['date']==time:
+                tmp.append(data)
+        return tmp
+                
+        
+            
 class Table(ttk.Treeview):
     def __init__(self,master=None,columns=[]):
         super().__init__(master)
         self.master = master
         self.WIDTH=100
-        self.MINWIDTH=30
-        self.set_columns(columns)
-        self.pack()
+        self.MINWIDTH=80
+        self.set_columns(columns=columns,first_column="Date(날짜)")
+        self.pack(fill='x')
         
-    def set_columns(self,columns=[]):
+    def set_columns(self,columns=[],first_column="sample"):
+        self.column('#0',width=self.WIDTH,minwidth=self.MINWIDTH)
+        self.heading('#0',text=first_column,anchor=tk.W)
         if columns==[]:
             return
         if len(columns)==1:
-            self.column('#0',width=self.WIDTH,minwidth=self.MINWIDTH,stretch=tk.NO)
-            self.heading('#0',text=columns[0],anchor=tk.W)
+            return
         else:
-            pass
+            self.add_columns(columns)
+            for key in range(len(columns)):
+                self.column(columns[key],width=self.WIDTH,minwidth=self.MINWIDTH)
+    def add_columns(self,columns,**kwargs):
+        current_columns=list(self['columns'])
+        current_columns={key:self.heading(key) for key in current_columns}
+
+        self['columns']=list(current_columns.keys())+list(columns)
+        for key in columns:
+            self.heading(key,text=key,**kwargs)
+        for key in current_columns:
+            # State is not valid to set with heading
+            state = current_columns[key].pop('state')
+            self.heading(key, **current_columns[key])              
         
 
 class Application(Frame):
-    def __init__(self,master=None):
+    def __init__(self,master=None,savefile=None):
         super().__init__(master)
         self.master = master
+        self.savefile = savefile
         self.window_set()
         self.pack()
         self.create_menu()
@@ -126,7 +182,7 @@ class Application(Frame):
 
         '''self.Table=ttk.Treeview(self.TableField,columns=['1','2'],displaycolumns=['1','2'])
         self.Table.pack()'''
-        self.Table=Table(self.TableField,columns=["a"])
+        self.Table=Table(self.TableField,columns=columns_name)
         
 
     def updateDateEntry(self):
@@ -142,5 +198,6 @@ class Application(Frame):
 
 if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
     root=Tk()
-    app=Application(master=root)
+    tr=Today_Result()
+    app=Application(master=root,savefile=tr)
     app.mainloop()

@@ -3,28 +3,27 @@
         {
             "Male": 0,
             "Female": 0,
-            "date": "20210701"
+            "date": "2021-07-07",
+            "where": "notebook"
         }
     ],
     "print": [
         {
             "Male": 0,
             "Female": 0,
-            "date": "20210701"
+            "date": "2021-07-07",
+            "where": "print"
         }
     ],
     "watch": [
         {
             "Male": 0,
             "Female": 0,
-            "date": "20210701"
+            "date": "2021-07-07",
+            "where": "watch"
         }
     ],
-    "type": [
-        {
-            "info": "today",
-            "date": "2021-07-01 00:05:06.744843",
-            "user": "rayan"
-        }
-    ]
+    "inputs": [],
+    "cumulative": 0,
+    "typecode": "TR"
 }
