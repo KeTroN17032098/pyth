@@ -1,9 +1,12 @@
 {
+    "inputs": [],
+    "cumulative": 0,
+    "typecode": "TR",
     "notebook": [
         {
             "Male": 0,
             "Female": 0,
-            "date": "2021-07-07",
+            "date": "2021-07-08",
             "where": "notebook"
         }
     ],
@@ -11,7 +14,7 @@
         {
             "Male": 0,
             "Female": 0,
-            "date": "2021-07-07",
+            "date": "2021-07-08",
             "where": "print"
         }
     ],
@@ -19,11 +22,8 @@
         {
             "Male": 0,
             "Female": 0,
-            "date": "2021-07-07",
+            "date": "2021-07-08",
             "where": "watch"
         }
-    ],
-    "inputs": [],
-    "cumulative": 0,
-    "typecode": "TR"
+    ]
 }
