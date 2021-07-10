@@ -66,8 +66,6 @@ class Json_Data():
             print("함수 결과:")
             print(self.show_data())
             self.save_data()
-        print("excel like :")
-        self.modify_data_excelike()
     def save_data(self):#데이터 저장
         with open(self.FilePath,'w') as fk:
             json.dump(self.data, fk,indent=4)
@@ -147,12 +145,12 @@ class Json_Data():
             for data in self.data[place]:
                 if data['date'] not in dates:dates.append(data['date'])
         result={}
-        result['columns']=["Date"]
-        result['columns']+=columns_name
-        result['columns']+=['총합']
-        for date in dates:
-            sd=self.show_data(date,date)
-            tmp=[date]
+        columns_d=["Date"]
+        columns_d+=columns_name
+        columns_d+=['총합']
+        for date in range(len(dates)):
+            sd=self.show_data(dates[date],dates[date])
+            tmp=[dates[date]]
             for place in self.__WhereName__:
                 for gender in self.__Gender__:
                     tmp.append(0)
@@ -163,11 +161,10 @@ class Json_Data():
                         for j in range(len(self.__Gender__)):
                             tmp[i*2+j+1]+=member[self.__Gender__[j]]
                             tmp[-1]+=tmp[i*2+j+1]
-            result[date]=tmp
+            result[str(date+1)]=tmp
         pprint.pprint(result)
-        df=pd.DataFrame(data=result,index=[0])
-        df=(df.T)
-        print(df)
+        df=pd.DataFrame.from_dict(result,orient="index",columns=columns_d)
+        df.to_excel(excel_path)
         
 
 class Table(ttk.Treeview):
@@ -208,6 +205,9 @@ class Table(ttk.Treeview):
             style.configure("tp.Treeview",font=fontStyle_I)
             style.configure("tp.Treeview.Heading",font=fontStyle_H)
             self.configure(style="tp.Treeview")
+
+    def insert_data_from_json(self,date=(today_date_str(),today_date_str()),json_data=None):
+        pass
 
 class Application(Frame):
     def __init__(self,master=None,savefile=None):
