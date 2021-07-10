@@ -14,10 +14,13 @@ from PIL import Image, ImageTk
 import getpass as gp
 from multiprocessing import Process, Queue
 import threading
+import pprint
+import pandas as pd
 
 today_result={}
 today_file_path='data/today_result.json'
 icon_path='checkbox/logo.ico'
+excel_path='data_excel.xlsx'
 columns_name=['노트북 남성','노트북 여성','프린트 남성','프린트 여성','관내열람 남성','관내열람 여성']
 
 
@@ -63,7 +66,8 @@ class Json_Data():
             print("함수 결과:")
             print(self.show_data())
             self.save_data()
-
+        print("excel like :")
+        self.modify_data_excelike()
     def save_data(self):#데이터 저장
         with open(self.FilePath,'w') as fk:
             json.dump(self.data, fk,indent=4)
@@ -80,7 +84,7 @@ class Json_Data():
             hasMember=[]
             for item in self.__Today_Data__:
                 hasMember.append(item['where'])
-            tmp=self.__WhereName__-hasMember
+            tmp=list(set(self.__WhereName__)-set(hasMember))
             for place in tmp:
                 self.data[place].append({
                     "Male":0,
@@ -123,6 +127,7 @@ class Json_Data():
             for member in self.data[where]:
                 if member==target:
                     member[gender]+=count
+                    self.date['cumulative']+=count
                     sucess=TRUE
                     break
         self.date['inputs'].append({
@@ -135,6 +140,35 @@ class Json_Data():
             'isSucceeded':sucess
         })
         return sucess
+
+    def modify_data_excelike(self):
+        dates=[]
+        for place in self.__WhereName__:
+            for data in self.data[place]:
+                if data['date'] not in dates:dates.append(data['date'])
+        result={}
+        result['columns']=["Date"]
+        result['columns']+=columns_name
+        result['columns']+=['총합']
+        for date in dates:
+            sd=self.show_data(date,date)
+            tmp=[date]
+            for place in self.__WhereName__:
+                for gender in self.__Gender__:
+                    tmp.append(0)
+            tmp.append(0)
+            for member in sd:
+                for i in range(len(self.__WhereName__)):
+                    if member['where']==self.__WhereName__[i]:
+                        for j in range(len(self.__Gender__)):
+                            tmp[i*2+j+1]+=member[self.__Gender__[j]]
+                            tmp[-1]+=tmp[i*2+j+1]
+            result[date]=tmp
+        pprint.pprint(result)
+        df=pd.DataFrame(data=result,index=[0])
+        df=(df.T)
+        print(df)
+        
 
 class Table(ttk.Treeview):
     def __init__(self,master=None,columns=[]):
