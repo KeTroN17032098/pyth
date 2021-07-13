@@ -2,28 +2,28 @@
     "inputs": [],
     "cumulative": 0,
     "typecode": "TR",
-    "notebook": [
+    "\ub178\ud2b8\ubd81": [
         {
-            "Male": 0,
-            "Female": 0,
-            "date": "2021-07-08",
-            "where": "notebook"
+            "date": "2021-07-13",
+            "where": "\ub178\ud2b8\ubd81",
+            "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
         }
     ],
-    "print": [
+    "\ud504\ub9b0\ud2b8": [
         {
-            "Male": 0,
-            "Female": 0,
-            "date": "2021-07-08",
-            "where": "print"
+            "date": "2021-07-13",
+            "where": "\ud504\ub9b0\ud2b8",
+            "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
         }
     ],
-    "watch": [
+    "\uad00\ub0b4\uc5f4\ub78c": [
         {
-            "Male": 0,
-            "Female": 0,
-            "date": "2021-07-08",
-            "where": "watch"
+            "date": "2021-07-13",
+            "where": "\uad00\ub0b4\uc5f4\ub78c",
+            "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
         }
     ]
 }

@@ -17,13 +17,16 @@ import threading
 import pprint
 import pandas as pd
 
-today_result={}
 today_file_path='data/today_result.json'
 icon_path='checkbox/logo.ico'
 excel_path='data_excel.xlsx'
-columns_name=['노트북 남성','노트북 여성','프린트 남성','프린트 여성','관내열람 남성','관내열람 여성']
 
 
+def date_range(start, end):
+    start = datetime.datetime.strptime(start, "%Y-%m-%d")
+    end = datetime.datetime.strptime(end, "%Y-%m-%d")
+    dates = [date.strftime("%Y-%m-%d") for date in pd.date_range(start, periods=(end-start).days+1)]
+    return dates
 
 def today_date_str():
     return datetime.datetime.today().strftime("%Y-%m-%d")
@@ -34,8 +37,8 @@ def now_time_str():
 class Json_Data():
     def __init__(self):#생성자
         self.FilePath=today_file_path
-        self.__WhereName__=["notebook",'print','watch']
-        self.__Gender__=['Male','Female']
+        self.__WhereName__=["노트북",'프린트','관내열람']
+        self.__Gender__=['남성','여성']
         self.__Today_Data__=[]
         self.data={}
         if os.path.isfile(self.FilePath):
@@ -52,11 +55,11 @@ class Json_Data():
             for where in self.__WhereName__:
                 self.data[where]=[]
                 k={
-                    "Male":0,
-                    "Female":0,
                     "date":today_date_str(),
                     "where":where
                 }
+                for gender in self.__Gender__:
+                    k[gender]=0
                 self.data[where].append(k)
             self.check_date()
             print("초기 데이터 :")
@@ -85,13 +88,15 @@ class Json_Data():
             tmp=list(set(self.__WhereName__)-set(hasMember))
             for place in tmp:
                 self.data[place].append({
-                    "Male":0,
-                    "Female":0,
                     "date":today_date_str(),
                     "where":where
                 })
+                for gender in self.__Gender__:
+                    self.data[place][gender]=0
+            self.check_date()
         elif len(self.__WhereName__)==len(self.__Today_Data__):
             print(self.__Today_Data__)
+            self.save_data()
             return
         else: self.check_date()
 
@@ -139,13 +144,23 @@ class Json_Data():
         })
         return sucess
 
-    def modify_data_excelike(self):
-        dates=[]
+    def modify_data_excelike(self,selected_dates=[],mode=TRUE):#뒤에 list 안 넣는다면 포함된 모든 일 출력
+        datesd=[]
         for place in self.__WhereName__:
             for data in self.data[place]:
-                if data['date'] not in dates:dates.append(data['date'])
+                if data['date'] not in datesd:datesd.append(data['date'])
+        dates=[]
+        if selected_dates!=[]:
+            for date in datesd:
+                if date in selected_dates:
+                    dates.append(date)
+        else:dates=datesd
         result={}
         columns_d=["Date"]
+        columns_name=[]
+        for where in self.__WhereName__:
+            for gender in self.__Gender__:
+                columns_name.append(where+" "+gender)
         columns_d+=columns_name
         columns_d+=['총합']
         for date in range(len(dates)):
@@ -163,9 +178,22 @@ class Json_Data():
                             tmp[-1]+=tmp[i*2+j+1]
             result[str(date+1)]=tmp
         pprint.pprint(result)
-        df=pd.DataFrame.from_dict(result,orient="index",columns=columns_d)
-        df.to_excel(excel_path)
-        
+        if mode:
+            df=pd.DataFrame.from_dict(result,orient="index",columns=columns_d)
+            df.to_excel(excel_path)
+        return result
+
+    def columns_name(self):
+        columns_name=[]
+        for where in self.__WhereName__:
+            for gender in self.__Gender__:
+                columns_name.append(where+" "+gender)
+        return columns_name
+
+    def quit(self):
+        print("자동저장 후 종료")
+        self.save_data()
+        del self
 
 class Table(ttk.Treeview):
     def __init__(self,master=None,columns=[]):
@@ -200,14 +228,23 @@ class Table(ttk.Treeview):
             state = current_columns[key].pop('state')
             self.heading(key, **current_columns[key]) 
 
-    def set_FontStyle(self,fontStyle_I=("Lucida Grande",10),fontStyle_H=("Lucida Grande",17,'bold')):
+    def set_FontStyle(self,fontStyle_I=("Lucida Grande",15),fontStyle_H=("Lucida Grande",17,'bold')):
             style=ttk.Style()
             style.configure("tp.Treeview",font=fontStyle_I)
             style.configure("tp.Treeview.Heading",font=fontStyle_H)
             self.configure(style="tp.Treeview")
 
-    def insert_data_from_json(self,date=(today_date_str(),today_date_str()),json_data=None):
-        pass
+    def insert_data_from_json(self,date_s=today_date_str(),date_f=today_date_str(),json_data=None):
+        if type(json_data)!=Json_Data:
+            return TypeError
+        else:
+            tmp=json_data.modify_data_excelike(selected_dates=date_range(date_s,date_f),mode=FALSE)
+            print('TMP')
+            print(tmp)
+            for data in range(len(tmp)):
+                date=tmp[str(data+1)].pop(0)
+                self.insert('','end',text=date,values=tuple(tmp[str(data+1)]),iid=str(data+1)+'번')
+
 
 class Application(Frame):
     def __init__(self,master=None,savefile=None):
@@ -219,6 +256,7 @@ class Application(Frame):
         self.pack()
         self.create_menu()
         self.create_widgets()
+        master.protocol("WM_DELETE_WINDOW",self.quit_all)#X버튼을 눌러서 종료시
 
     def window_set(self):
         self.master.iconbitmap(default=icon_path)
@@ -234,6 +272,7 @@ class Application(Frame):
         self.fontStyle2=tkFont.Font(family="Lucida Grande",size=25)
         self.create_DateField()
         self.create_TableField()
+        self.create_ButtonField()
         
     def create_DateField(self):
         self.dateField=Frame(self)
@@ -244,17 +283,42 @@ class Application(Frame):
         self.updateDateEntry()
     
     def create_TableField(self):
-        global columns_name
         self.TableField=Frame(self)
         self.TableField.pack(fill="x")
 
         '''self.Table=ttk.Treeview(self.TableField,columns=['1','2'],displaycolumns=['1','2'])
         self.Table.pack()'''
-        self.Table=Table(self.TableField,columns=columns_name)
+        self.Table=Table(self.TableField,columns=self.savefile.columns_name())
         self.TabelScroll=ttk.Scrollbar(self.TableField,orient="vertical",command=self.Table.yview)
         self.Table.configure(yscrollcommand=self.TabelScroll.set)
         self.TabelScroll.pack(side="right",fill='y')
-        
+        self.Table.insert_data_from_json(json_data=self.savefile)
+    
+    def create_ButtonField(self):
+        self.ButtonField=Frame(self,relief='solid',bd=2)
+        self.ButtonField.pack(fill='both',expand=True)
+
+        self.SubButtonFields=[]
+        self.Buttons=[]
+        for place_index in range(len(self.savefile.__WhereName__)):
+            SBF=Frame(self.ButtonField,relief='solid',bd=2)
+            if len(self.savefile.__WhereName__)%2==0:
+                if place_index<=(len(self.savefile.__WhereName__)/2)-1:SBF.pack(side="left",fill='both')
+                else:SBF.pack(side="left",fill='both')
+            else:
+                if place_index<(len(self.savefile.__WhereName__)-1)/2:SBF.pack(side="left",fill='both')
+                elif place_index==(len(self.savefile.__WhereName__)-1)/2:SBF.pack(side='left',fill='both')
+                else:SBF.pack(side="left",fill='both')
+
+            self.SubButtonFields.append(SBF)
+            for gender in self.savefile.__Gender__:
+                button=Button(SBF,text=self.savefile.__WhereName__[place_index]+" "+gender,font=self.fontStyle)
+                button.pack()
+                self.Buttons.append(button)
+            for gender in self.savefile.__Gender__:
+                button=Button(SBF,text=self.savefile.__WhereName__[place_index]+" "+gender+" 빼기",font=self.fontStyle)
+                button.pack()
+                self.Buttons.append(button)
 
     def updateDateEntry(self):
         try:
@@ -266,6 +330,14 @@ class Application(Frame):
             return
         threading.Timer(1,self.updateDateEntry).start()
 
+    def UpdateTexts(self):
+        pass
+    
+    def quit_all(self):
+        print("Quit All")
+        self.savefile.quit()
+        self.master.quit()
+        self.master.destroy()
 
 if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
     root=Tk()
