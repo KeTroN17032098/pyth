@@ -16,6 +16,7 @@ from multiprocessing import Process, Queue
 import threading
 import pprint
 import pandas as pd
+import time
 
 today_file_path='data/today_result.json'
 icon_path='checkbox/logo.ico'
@@ -49,7 +50,6 @@ class Json_Data():
             print("함수 결과:")
             print(self.show_data())
         else:
-            self.data['inputs']=[]#추가내역 기록
             self.data['cumulative']=0#전체 누적 이용자 수
             self.data['typecode']="TR"#데이터 타입
             for where in self.__WhereName__:
@@ -130,18 +130,15 @@ class Json_Data():
             for member in self.data[where]:
                 if member==target:
                     member[gender]+=count
-                    self.date['cumulative']+=count
+                    if member[gender]<0:
+                        member[gender]=0
+                    self.data['cumulative']+=count
+                    if self.data['cumulative']<=0:
+                        self.data['cumulative']=0
                     sucess=TRUE
                     break
-        self.date['inputs'].append({
-            "who":gp.getuser(),
-            'when':now_time_str(),
-            'data_when':date,
-            'data_gen':gender,
-            'data_where':where,
-            'date_count':count,
-            'isSucceeded':sucess
-        })
+        self.save_data()
+        print(self.data)
         return sucess
 
     def modify_data_excelike(self,selected_dates=[],mode=TRUE):#뒤에 list 안 넣는다면 포함된 모든 일 출력
@@ -189,6 +186,12 @@ class Json_Data():
             for gender in self.__Gender__:
                 columns_name.append(where+" "+gender)
         return columns_name
+    
+    def button_event(self,event,where="",gender="",mode=TRUE):
+        if where not in self.__WhereName__ or gender not in self.__Gender__:pass
+        else:
+            if mode==TRUE:self.push_data(gender=gender,where=where)
+            else:self.push_data(gender=gender,where=where,count=-1)
 
     def quit(self):
         print("자동저장 후 종료")
@@ -244,6 +247,11 @@ class Table(ttk.Treeview):
             for data in range(len(tmp)):
                 date=tmp[str(data+1)].pop(0)
                 self.insert('','end',text=date,values=tuple(tmp[str(data+1)]),iid=str(data+1)+'번')
+                
+    def clear_table(self):
+        for i in self.get_children():
+            print(i)
+            self.delete(i)
 
 
 class Application(Frame):
@@ -257,6 +265,7 @@ class Application(Frame):
         self.create_menu()
         self.create_widgets()
         master.protocol("WM_DELETE_WINDOW",self.quit_all)#X버튼을 눌러서 종료시
+        self.UpdateTexts()
 
     def window_set(self):
         self.master.iconbitmap(default=icon_path)
@@ -280,7 +289,10 @@ class Application(Frame):
         
         self.DateEntry=Entry(self.dateField,font=self.fontStyle2,width=22)
         self.DateEntry.pack()
-        self.updateDateEntry()
+    
+    def updatetable(self,event):
+            self.Table.clear_table()
+            self.Table.insert_data_from_json(json_data=self.savefile)
     
     def create_TableField(self):
         self.TableField=Frame(self)
@@ -292,8 +304,8 @@ class Application(Frame):
         self.TabelScroll=ttk.Scrollbar(self.TableField,orient="vertical",command=self.Table.yview)
         self.Table.configure(yscrollcommand=self.TabelScroll.set)
         self.TabelScroll.pack(side="right",fill='y')
-        self.Table.insert_data_from_json(json_data=self.savefile)
-    
+        
+        
     def create_ButtonField(self):
         self.ButtonField=Frame(self,relief='solid',bd=2)
         self.ButtonField.pack(fill='both',expand=True)
@@ -314,9 +326,13 @@ class Application(Frame):
             for gender in self.savefile.__Gender__:
                 button=Button(SBF,text=self.savefile.__WhereName__[place_index]+" "+gender,font=self.fontStyle)
                 button.pack()
+                button.bind("<Button-1>",lambda event, w=self.savefile.__WhereName__[place_index],g=gender,m=TRUE:self.savefile.button_event(event,where=w,gender=g,mode=m))
+                button.bind("<ButtonRelease-1>",self.updatetable)
                 self.Buttons.append(button)
             for gender in self.savefile.__Gender__:
                 button=Button(SBF,text=self.savefile.__WhereName__[place_index]+" "+gender+" 빼기",font=self.fontStyle)
+                button.bind("<Button-1>",lambda event, w=self.savefile.__WhereName__[place_index],g=gender,m=FALSE:self.savefile.button_event(event,where=w,gender=g,mode=m))
+                button.bind("<ButtonRelease-1>",self.updatetable)
                 button.pack()
                 self.Buttons.append(button)
 
@@ -326,12 +342,18 @@ class Application(Frame):
             now=now_time_str().center(21," ")
             self.DateEntry.insert(END,now)
         except RuntimeError:
-            print(threading.current_thread().name)
+            print("쓰레드 "+threading.current_thread().name+" 종료")
             return
+        
         threading.Timer(1,self.updateDateEntry).start()
 
     def UpdateTexts(self):
-        pass
+        print('a')
+        self.updateDateEntry()
+        self.Table.insert_data_from_json(json_data=self.savefile)
+
+        
+        
     
     def quit_all(self):
         print("Quit All")
