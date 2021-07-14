@@ -19,9 +19,11 @@ import pandas as pd
 import time
 
 today_file_path='data/today_result.json'
+history_file_path='data/today_history.json'
 icon_path='checkbox/logo.ico'
 excel_path='data_excel.xlsx'
 
+FILE_CLOSE = FALSE
 
 def date_range(start, end):
     start = datetime.datetime.strptime(start, "%Y-%m-%d")
@@ -36,20 +38,43 @@ def now_time_str():
     return today_date_str()+datetime.datetime.now().strftime(" %I:%M:%S %p")
     
 class Json_Data():
-    def __init__(self):#생성자
-        self.FilePath=today_file_path
-        self.__WhereName__=["노트북",'프린트','관내열람']
-        self.__Gender__=['남성','여성']
+    def __init__(self,FilePath=today_file_path,HistoryPath=history_file_path,whereList=["노트북",'프린트','관내열람'],genderList=['남성','여성']):#생성자
+        self.FilePath=FilePath
+        self.HistoryPath=HistoryPath
+        self.__WhereName__=whereList
+        self.__Gender__=genderList
         self.__Today_Data__=[]
         self.data={}
-        if os.path.isfile(self.FilePath):
+        self.history={}
+        if self.check_save():
             with open(self.FilePath,"r") as f:
                 self.data = json.load(f)
-                print (self.data)
             self.check_date()
-            print("함수 결과:")
-            print(self.show_data())
+            if self.check_his():
+                with open(self.HistoryPath,"r") as h:
+                    self.history=json.load(h)
+                    self.add_history_member(type='init')
+            else:
+                self.history['init']=[]
+                self.history['push']=[]
+                self.history['show']=[]
+                self.history['built']=[]
+                self.history['fail']=[]
+                self.add_history_member(type='built')
+                self.add_history_member(type='init')
         else:
+            if self.check_his():
+                with open(self.HistoryPath,"r") as h:
+                    self.history=json.load(h)
+                    self.add_history_member(type='init')
+            else:
+                self.history['init']=[]
+                self.history['push']=[]
+                self.history['show']=[]
+                self.history['built']=[]
+                self.history['fail']=[]
+                self.add_history_member(type='built')
+                self.add_history_member(type='init')
             self.data['cumulative']=0#전체 누적 이용자 수
             self.data['typecode']="TR"#데이터 타입
             for where in self.__WhereName__:
@@ -62,16 +87,51 @@ class Json_Data():
                     k[gender]=0
                 self.data[where].append(k)
             self.check_date()
-            print("초기 데이터 :")
-            print(self.data)
-            print("오늘 데이터 :")
-            print(self.__Today_Data__)
-            print("함수 결과:")
-            print(self.show_data())
             self.save_data()
+            
     def save_data(self):#데이터 저장
         with open(self.FilePath,'w') as fk:
             json.dump(self.data, fk,indent=4)
+            
+    def save_history(self):#내역 저장
+        with open(self.HistoryPath,'w') as hk:
+            json.dump(self.history,hk,indent=4)
+
+    def add_history_member(self,type='push',count=1,gender="",place="",showdates=(today_date_str(),today_date_str())):
+        tmp={}
+        if type =='built'or type=='init':
+            tmp['user']=gp.getuser()
+            tmp['time']=now_time_str()
+            tmp['type']=type
+            tmp['isSucess']=TRUE
+        elif type=='push' and gender in self.__Gender__ and place in self.__WhereName__:
+            tmp['user']=gp.getuser()
+            tmp['time']=now_time_str()
+            tmp['type']=type
+            tmp['isSucess']=TRUE
+            tmp['gender']=gender
+            tmp['place']=place
+            tmp['count']=count
+        elif type=='show' and len(date_range(showdates[0],showdates[1]))>0:
+            tmp['user']=gp.getuser()
+            tmp['time']=now_time_str()
+            tmp['type']=type
+            tmp['isSucess']=TRUE
+            tmp['dates']=date_range(showdates[0],showdates[1])
+        else:
+            tmp['user']=gp.getuser()
+            tmp['time']=now_time_str()
+            tmp['type']=type
+            tmp['isSucess']=FALSE
+            tmp['count']=count
+            if gender!="":tmp['gender']=gender
+            if place!="":tmp['place']=place
+            self.history['fail'].append(tmp)
+            self.save_history()
+            return FALSE
+        self.history[tmp['type']].append(tmp)
+        self.save_history()
+        return TRUE
 
     def check_date(self):#오늘 날짜 멤버 체크 및 생성
         today=today_date_str()
@@ -95,7 +155,6 @@ class Json_Data():
                     self.data[place][gender]=0
             self.check_date()
         elif len(self.__WhereName__)==len(self.__Today_Data__):
-            print(self.__Today_Data__)
             self.save_data()
             return
         else: self.check_date()
@@ -118,6 +177,7 @@ class Json_Data():
                         if datetime.datetime.strptime(data['date'],'%Y-%m-%d')==time:
                             result.append(data)
                             break
+        self.add_history_member(type='show',showdates=(start,end))
         return result
                 
     def push_data(self,date=today_date_str(),gender="",where="",count=1):#날짜/성별/장소 를 지정 count만큼 추가
@@ -138,10 +198,14 @@ class Json_Data():
                     sucess=TRUE
                     break
         self.save_data()
-        print(self.data)
+        self.add_history_member(type='push',gender=gender,place=where,count=count)
         return sucess
 
-    def modify_data_excelike(self,selected_dates=[],mode=TRUE):#뒤에 list 안 넣는다면 포함된 모든 일 출력
+    def modify_data_excelike(self,selected_dates=[],mode=TRUE):
+        """
+        mode : make Excel pile default : True
+        selected_dates : list of dates that required for showing info DeFault : show_everything
+        """
         datesd=[]
         for place in self.__WhereName__:
             for data in self.data[place]:
@@ -193,20 +257,48 @@ class Json_Data():
             if mode==TRUE:self.push_data(gender=gender,where=where)
             else:self.push_data(gender=gender,where=where,count=-1)
 
+    def check_save(self):
+        isValid=FALSE
+        if os.path.isfile(self.FilePath):
+            check_tmp={}
+            with open(self.FilePath,'r') as check:
+                check_tmp=json.load(check)
+            if sorted(list(check_tmp.keys()))==sorted(self.__WhereName__+['cumulative','typecode']):
+                isValid=TRUE
+                print("세이브 파일 무결성 확인")
+        else:
+            pass
+        return isValid
+
+    def check_his(self):
+        isValid=FALSE
+        if os.path.isfile(self.HistoryPath):
+            check_tmp={}
+            with open(self.HistoryPath,'r') as check:
+                check_tmp=json.load(check)
+            if sorted(list(check_tmp.keys()))==sorted(['init','built','show','push','fail']):
+                isValid=TRUE
+                print("기록 파일 무결성 확인")
+        else:
+            pass
+        return isValid
+
     def quit(self):
+        global FILE_CLOSE
+
         print("자동저장 후 종료")
         self.save_data()
+        self.save_history()
         del self
 
 class Table(ttk.Treeview):
-    def __init__(self,master=None,columns=[]):
+    def __init__(self,master=None,columns=[],WIDTH=155,MINWIDTH=145,first_column="Date(날짜)"):
         super().__init__(master)
         self.master = master
-        self.WIDTH=155
-        self.MINWIDTH=145
-        self.set_columns(columns=columns,first_column="Date(날짜)")
+        self.WIDTH=WIDTH
+        self.MINWIDTH=MINWIDTH
+        self.set_columns(columns=columns,first_column=first_column)
         self.set_FontStyle()
-        self.pack(fill='x',side='left',expand=True)
         
     def set_columns(self,columns=[],first_column="sample"):
         self.column('#0',width=self.WIDTH,minwidth=self.MINWIDTH)
@@ -253,7 +345,16 @@ class Table(ttk.Treeview):
             print(i)
             self.delete(i)
 
-
+class TableSet():
+    def __init__(self,master=None,columns=[],WIDTH=155,MINWIDTH=145,first_column="Date(날짜)"):
+        self.Table=Table(master,columns=columns,WIDTH=WIDTH,MINWIDTH=MINWIDTH,first_column=first_column)
+        self.TabelYScroll=ttk.Scrollbar(master,orient="vertical",command=self.Table.yview)
+        self.TableXScroll=ttk.Scrollbar(master,orient="horizontal",command=self.Table.xview)
+        self.Table.configure(yscrollcommand=self.TabelYScroll.set,xscrollcommand=self.TableXScroll.set)
+        self.TabelYScroll.pack(side="right",fill='y')
+        self.TableXScroll.pack(side="bottom",fill='x')
+        self.Table.pack(fill="x")
+        
 class Application(Frame):
     def __init__(self,master=None,savefile=None):
         super().__init__(master)
@@ -291,24 +392,30 @@ class Application(Frame):
         self.DateEntry.pack()
     
     def updatetable(self,event):
-            self.Table.clear_table()
-            self.Table.insert_data_from_json(json_data=self.savefile)
+            self.Table.Table.clear_table()
+            self.Table.Table.insert_data_from_json(json_data=self.savefile)
     
     def create_TableField(self):
-        self.TableField=Frame(self)
+        self.TableField=Frame(self,relief="solid",bd=2)
         self.TableField.pack(fill="x")
 
         '''self.Table=ttk.Treeview(self.TableField,columns=['1','2'],displaycolumns=['1','2'])
         self.Table.pack()'''
+        '''
         self.Table=Table(self.TableField,columns=self.savefile.columns_name())
-        self.TabelScroll=ttk.Scrollbar(self.TableField,orient="vertical",command=self.Table.yview)
-        self.Table.configure(yscrollcommand=self.TabelScroll.set)
-        self.TabelScroll.pack(side="right",fill='y')
+        self.TabelYScroll=ttk.Scrollbar(self.TableField,orient="vertical",command=self.Table.yview)
+        self.TableXScroll=ttk.Scrollbar(self.TableField,orient="horizontal",command=self.Table.xview)
+        self.Table.configure(yscrollcommand=self.TabelYScroll.set,xscrollcommand=self.TableXScroll.set)
+        self.TabelYScroll.pack(side="right",fill='y')
+        self.TableXScroll.pack(side="bottom",fill='x')
+        self.Table.pack(fill="x")
+        '''
+        self.Table=TableSet(self.TableField,columns=self.savefile.columns_name())
         
         
     def create_ButtonField(self):
         self.ButtonField=Frame(self,relief='solid',bd=2)
-        self.ButtonField.pack(fill='both',expand=True)
+        self.ButtonField.pack(fill='x',side='bottom')
 
         self.SubButtonFields=[]
         self.Buttons=[]
@@ -350,7 +457,7 @@ class Application(Frame):
     def UpdateTexts(self):
         print('a')
         self.updateDateEntry()
-        self.Table.insert_data_from_json(json_data=self.savefile)
+        self.Table.Table.insert_data_from_json(json_data=self.savefile)
 
         
         
@@ -362,8 +469,10 @@ class Application(Frame):
         self.master.destroy()
 
 if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
-    root=Tk()
-    tr=Json_Data()
-    print(tr)
-    app=Application(master=root,savefile=tr)
-    app.mainloop()
+    while True:
+        root=Tk()
+        tr=Json_Data()
+        print(tr)
+        app=Application(master=root,savefile=tr)
+        app.mainloop()
+        if FILE_CLOSE:break
