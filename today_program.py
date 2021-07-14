@@ -7,6 +7,7 @@ from tkinter import messagebox
 from tkinter.filedialog import *
 from tkinter import scrolledtext
 import tkinter.font as tkFont
+from tkcalendar import *
 import tkinter as tk
 import datetime
 from datetime import timedelta
@@ -16,6 +17,7 @@ from multiprocessing import Process, Queue
 import threading
 import pprint
 import pandas as pd
+import openpyxl
 
 
 today_file_path='data/today_result.json'
@@ -208,10 +210,11 @@ class Json_Data():
         self.add_history_member(type='push',gender=gender,place=where,count=count)
         return sucess
 
-    def modify_data_excelike(self,selected_dates=[],mode=TRUE):
+    def modify_data_excelike(self,selected_dates=[],mode=TRUE,excel_path=excel_path):
         """
-        mode : make Excel pile default : True
+        mode : make Excel file default : True
         selected_dates : list of dates that required for showing info DeFault : show_everything
+        excel_path : if mode is TRUE excel file will save at excel_path. Defalt :'data_excel.xlsx'
         """
         datesd=[]
         for place in self.__WhereName__:
@@ -299,7 +302,7 @@ class Json_Data():
         del self
 
 class Table(ttk.Treeview):
-    def __init__(self,master=None,columns=[],WIDTH=155,MINWIDTH=145,first_column="Date(날짜)"):
+    def __init__(self,master=None,columns=[],WIDTH=180,MINWIDTH=165,first_column="Date(날짜)"):
         super().__init__(master)
         self.master = master
         self.WIDTH=WIDTH
@@ -330,15 +333,23 @@ class Table(ttk.Treeview):
             state = current_columns[key].pop('state')
             self.heading(key, **current_columns[key]) 
 
-    def set_FontStyle(self,fontStyle_I=("Lucida Grande",15),fontStyle_H=("Lucida Grande",17,'bold')):
+    def set_FontStyle(self,fontStyle_I=("Lucida Grande",18),fontStyle_H=("Lucida Grande",18,'bold')):
             style=ttk.Style()
             style.configure("tp.Treeview",font=fontStyle_I)
             style.configure("tp.Treeview.Heading",font=fontStyle_H)
+            style.configure("tp.Treeview",rowheight=25)
             self.configure(style="tp.Treeview")
 
-    def insert_data_from_json(self,date_s=today_date_str(),date_f=today_date_str(),json_data=None):
+    def insert_data_from_json(self,date_s=today_date_str(),date_f=today_date_str(),json_data=None,allmode=FALSE):
         if type(json_data)!=Json_Data:
             return TypeError
+        elif allmode:
+            tmp=json_data.modify_data_excelike(mode=FALSE)
+            print('TMP')
+            print(tmp)
+            for data in range(len(tmp)):
+                date=tmp[str(data+1)].pop(0)
+                self.insert('','end',text=date,values=tuple(tmp[str(data+1)]),iid=str(data+1)+'번')
         else:
             tmp=json_data.modify_data_excelike(selected_dates=date_range(date_s,date_f),mode=FALSE)
             print('TMP')
@@ -361,6 +372,15 @@ class TableSet():
         self.TabelYScroll.pack(side="right",fill='y')
         self.TableXScroll.pack(side="bottom",fill='x')
         self.Table.pack(fill="x")
+ 
+class MyDateEntry(DateEntry):
+    def __init__(self, master=None, **kw):
+        DateEntry.__init__(self, master=None, **kw)
+        # add black border around drop-down calendar
+        self._top_cal.configure(bg='black', bd=1)
+        # add label displaying today's date below
+        tk.Label(self._top_cal, bg='gray90', anchor='w',
+                    text='Today: %s' % datetime.datetime.today().strftime('%x')).pack(fill='x')
         
 class Application(Frame):
     def __init__(self,master=None,savefile=None,image_sets=[]):
@@ -368,6 +388,7 @@ class Application(Frame):
         self.master = master
         self.savefile = savefile
         self.image_sets = image_sets
+        self.viewmode=FALSE
         print(self.savefile.data)
         self.window_set()
         self.pack()
@@ -378,19 +399,29 @@ class Application(Frame):
 
     def window_set(self):
         self.master.iconbitmap(default=icon_path)
-        self.master.resizable(True,False)
         self.master.title("전자정보실 "+today_date_str()+"일 기록")
-        self.master.geometry("1200x550")
+        self.master.geometry("1200x600")
 
     def create_menu(self):
-        pass
+        self.menubar=Menu(self.master)
+        self.menu1=Menu(self.menubar,tearoff=0)
+        self.menu1.add_command(label="오늘만",command=self.saveasexcel_today)
+        self.menu1.add_command(label='날짜 지정',command=self.saveasexcel_selected)
+        self.menu1.add_command(label='모두 다',command=self.saveasexcel_all)
+        self.menu1.add_separator()
+        self.menu1.add_command(label="변경 내역")
+        self.menubar.add_cascade(label="엑셀화",menu=self.menu1)
+        self.master.config(menu=self.menubar)
 
     def create_widgets(self):
         self.fontStyle=tkFont.Font(family="Lucida Grande",size=15)
         self.fontStyle2=tkFont.Font(family="Lucida Grande",size=25)
+        self.style=ttk.Style(self.master)
+        self.style.theme_use('clam')
         self.create_DateField()
         self.create_TableField()
         self.create_ButtonField()
+        self.create_ViewButtonField()
         
     def create_DateField(self):
         self.dateField=Frame(self)
@@ -401,7 +432,7 @@ class Application(Frame):
     
     def updatetable(self,event):
             self.Table.Table.clear_table()
-            self.Table.Table.insert_data_from_json(json_data=self.savefile)
+            self.Table.Table.insert_data_from_json(json_data=self.savefile,allmode=self.viewmode)
     
     def create_TableField(self):
         self.TableField=Frame(self,relief="solid",bd=2)
@@ -435,7 +466,7 @@ class Application(Frame):
                 self.SubButtonFields.append(SBIF)
                 SBIF.pack(fill='both',side='left')
                 img=imageModifier(self.image_sets[place_index%len(self.image_sets)],200,200)
-                image=Label(SBIF,image=img)
+                image=Label(SBIF,image=img,background="white")
                 image.image=img
                 image.pack(fill='both')
             SBF.pack(fill='both',side='left')
@@ -452,6 +483,12 @@ class Application(Frame):
                 button.pack()
                 self.Buttons.append(button)
 
+    def create_ViewButtonField(self):
+        self.ViewButtonField=Frame(self)
+        self.ViewButtonField.pack()
+        self.ViewButton=Button(self.ViewButtonField,text="전체/오늘 보기 변경",command=self.changemode)
+        self.ViewButton.pack()
+
     def updateDateEntry(self):
         try:
             self.DateEntry.delete(0,END)
@@ -462,14 +499,90 @@ class Application(Frame):
             return
         
         threading.Timer(1,self.updateDateEntry).start()
+        
+    def changemode(self):
+        if self.viewmode:
+            self.viewmode=FALSE
+        else:
+            self.viewmode=TRUE
+        self.Table.Table.clear_table()
+        self.Table.Table.insert_data_from_json(json_data=self.savefile,allmode=self.viewmode)
 
     def UpdateTexts(self):
         print('a')
         self.updateDateEntry()
-        self.Table.Table.insert_data_from_json(json_data=self.savefile)
+        self.Table.Table.insert_data_from_json(json_data=self.savefile,allmode=self.viewmode)
 
+    def saveasexcel_today(self):
+        sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile='noname.xlsx',defaultextension='.xlsx')
+        if sv is None:
+            return
+        self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=TRUE,excel_path=sv)
         
+    def saveasexcel_all(self):
+        sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile='noname.xlsx',defaultextension='.xlsx')
+        if sv is None:
+            return
+        self.savefile.modify_data_excelike(mode=TRUE,excel_path=sv)
         
+    def saveasexcel_selected(self):
+        sw=Toplevel(self.master)
+        sw.geometry('300x120')
+        sw.resizable(False,False)
+        sdf=Frame(sw)
+        sdf.pack()
+        sdl=Label(sdf,text="Start :")
+        sdl.pack(side='left')
+        sde = DateEntry(sdf,selectbackground='gray80',
+                 selectforeground='black',
+                 normalbackground='white',
+                 normalforeground='black',
+                 background='gray90',
+                 foreground='black',
+                 bordercolor='gray90',
+                 othermonthforeground='gray50',
+                 othermonthbackground='white',
+                 othermonthweforeground='gray50',
+                 othermonthwebackground='white',
+                 weekendbackground='white',
+                 weekendforeground='black',
+                 headersbackground='white',
+                 headersforeground='gray70')
+        sde.pack(side='right')
+        edf=Frame(sw)
+        edf.pack()
+        edl=Label(edf,text="End :")
+        edl.pack(side='left')
+        ede = DateEntry(edf,selectbackground='gray80',
+                 selectforeground='black',
+                 normalbackground='white',
+                 normalforeground='black',
+                 background='gray90',
+                 foreground='black',
+                 bordercolor='gray90',
+                 othermonthforeground='gray50',
+                 othermonthbackground='white',
+                 othermonthweforeground='gray50',
+                 othermonthwebackground='white',
+                 weekendbackground='white',
+                 weekendforeground='black',
+                 headersbackground='white',
+                 headersforeground='gray70')
+        ede.pack(side='right')
+        def bf():
+            tmp=date_range(sde.get_date().strftime("%Y-%m-%d"),ede.get_date().strftime("%Y-%m-%d"))
+            if len(tmp)<=0:
+                messagebox.showerror("날짜 선택","잘못된 날짜 범위 설정입니다.")
+            else:
+                sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile='noname.xlsx',defaultextension='.xlsx')
+                if sv is None:
+                    return
+                self.savefile.modify_data_excelike(mode=TRUE,excel_path=sv,selected_dates=tmp)
+        bdf=Frame(sw)
+        bdf.pack()
+        bdb=Button(bdf,text="엑셀화",command=bf)
+        bdb.pack()
+
     
     def quit_all(self):
         print("Quit All")
