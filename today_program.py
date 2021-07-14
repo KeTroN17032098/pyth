@@ -16,7 +16,7 @@ from multiprocessing import Process, Queue
 import threading
 import pprint
 import pandas as pd
-import time
+
 
 today_file_path='data/today_result.json'
 history_file_path='data/today_history.json'
@@ -285,7 +285,7 @@ class Json_Data():
 
     def quit(self):
         global FILE_CLOSE
-
+        FILE_CLOSE=TRUE
         print("자동저장 후 종료")
         self.save_data()
         self.save_history()
