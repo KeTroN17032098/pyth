@@ -18,12 +18,15 @@ import threading
 import pprint
 import pandas as pd
 import openpyxl
+from openpyxl.styles import Font,Alignment,PatternFill,Color
+import shutil
 
 
 today_file_path='data/today_result.json'
 history_file_path='data/today_history.json'
 icon_path='checkbox/logo.ico'
 excel_path='data_excel.xlsx'
+history_excel_path='history_excel.xlsx'
 images_path=['places/notebook.png','places/print.png','places/dvd.png']
 
 FILE_CLOSE = FALSE
@@ -150,18 +153,23 @@ class Json_Data():
                 if today==item['date']: 
                     self.__Today_Data__.append(item)
                     break
+        print('sada')
+        print(self.__Today_Data__)
         if len(self.__Today_Data__)<len(self.__WhereName__):
             hasMember=[]
             for item in self.__Today_Data__:
                 hasMember.append(item['where'])
             tmp=list(set(self.__WhereName__)-set(hasMember))
+            print('fdasfasd')
+            print(tmp)
             for place in tmp:
-                self.data[place].append({
+                kal={
                     "date":today_date_str(),
-                    "where":where
-                })
+                    "where":place
+                }
                 for gender in self.__Gender__:
-                    self.data[place][gender]=0
+                    kal[gender]=0
+                self.data[place].append(kal)
             self.check_date()
         elif len(self.__WhereName__)==len(self.__Today_Data__):
             self.save_data()
@@ -191,11 +199,16 @@ class Json_Data():
                 
     def push_data(self,date=today_date_str(),gender="",where="",count=1):#날짜/성별/장소 를 지정 count만큼 추가
         sucess=FALSE
+        print('hey')
         if gender not in self.__Gender__:pass#Invalid Gender
         elif where not in self.__WhereName__:pass#Invalid Place
-        elif [data for data in self.show_data(date,date) if data['where']==where]==[]:pass#No Member
+        elif [data for data in self.show_data(date,date) if data['where']==where]==[]:
+            print(self.show_data(date,date))#No Member0
+            print(where)
         else:
             target=[data for data in self.show_data(date,date) if data['where']==where][0]
+            print('kola')
+            print(target)
             for member in self.data[where]:
                 if member==target:
                     member[gender]+=count
@@ -210,6 +223,63 @@ class Json_Data():
         self.add_history_member(type='push',gender=gender,place=where,count=count)
         return sucess
 
+    def modify_history_excel(self,excel_path=history_excel_path):
+        """
+        excel_path : if mode is TRUE excel file will save at excel_path. Defalt :'history_excel.xlsx'
+        """
+        columns_h={}
+        for key in list(self.history.keys()):
+            try:
+                columns_h[key]=list(self.history[key][0].keys())
+            except IndexError:
+                columns_h[key]=[]
+                
+        wb=openpyxl.Workbook()
+        for key in list(self.history.keys()):
+            ws=wb.create_sheet(key)
+            if len(columns_h[key])!=0:
+                for cl in range(len(columns_h[key])):
+                    ws.cell(row=1,column=cl+2).value=columns_h[key][cl]
+                    ws.cell(row=1,column=cl+2).alignment=Alignment(horizontal='center',vertical='center')
+                    ws.cell(row=1,column=cl+2).fill=PatternFill(patternType='solid',fgColor=Color('FFC000'))
+                for index in range(len(self.history[key])):
+                    ws.cell(row=index+2,column=1).value=index+1
+                    ws.cell(row=index+2,column=1).alignment=Alignment(horizontal='center',vertical='center')
+                    ws.cell(row=index+2,column=1).fill=PatternFill(patternType='solid',fgColor=Color('008000'))
+                    for cl in range(len(columns_h[key])):
+                        if type(self.history[key][index][columns_h[key][cl]])!=list:ws.cell(row=index+2,column=cl+2).value=self.history[key][index][columns_h[key][cl]]
+                        else:ws.cell(row=index+2,column=cl+2).value=str(self.history[key][index][columns_h[key][cl]])
+                        ws.cell(row=index+2,column=cl+2).alignment=Alignment(horizontal='center',vertical='center')
+                self.adjust_cell_width(ws)
+            else:
+                pass
+        wb.remove(wb['Sheet'])
+        try:
+            wb.save(excel_path)
+        except PermissionError:
+            messagebox.showerror("PermissionError","파일을 닫아주세요.")
+
+    def adjust_cell_width(self, ws,value=1.2):
+        """
+        Adjust cell width
+        ws : worksheet handle from openpyxl
+        """
+        for col in ws.columns:
+            max_length =0
+            column_col=col[0].column_letter
+            for cell in col:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width=(max_length+2)*value
+            print(column_col)
+            print(adjusted_width)
+            ws.column_dimensions[column_col].width=int(adjusted_width)
+        
+        
+    
     def modify_data_excelike(self,selected_dates=[],mode=TRUE,excel_path=excel_path):
         """
         mode : make Excel file default : True
@@ -251,7 +321,24 @@ class Json_Data():
         pprint.pprint(result)
         if mode:
             df=pd.DataFrame.from_dict(result,orient="index",columns=columns_d)
-            df.to_excel(excel_path)
+            try:
+                df.to_excel(excel_path)
+                wb=openpyxl.load_workbook(excel_path,data_only=True)
+                ws=wb['Sheet1']
+                sum_row=[]
+                for c in ws.columns:
+                    column_ind=c[0].column_letter
+                    if column_ind !='A' and column_ind !='B':
+                        tmp_add=0
+                        for cell in c:
+                            if cell.row!=1:
+                                tmp_add+=int(cell.value)
+                        sum_row.append(tmp_add)
+                ws.append(["총합"," "]+sum_row)
+                self.adjust_cell_width(ws,value=2.4)
+                wb.save(excel_path)
+            except PermissionError:
+                messagebox.showerror("PermissionError","파일을 닫아주세요.")
         return result
 
     def columns_name(self):
@@ -267,11 +354,12 @@ class Json_Data():
             if mode==TRUE:self.push_data(gender=gender,where=where)
             else:self.push_data(gender=gender,where=where,count=-1)
 
-    def check_save(self):
+    def check_save(self,path=""):
         isValid=FALSE
-        if os.path.isfile(self.FilePath):
+        if path=="":path=self.FilePath
+        if os.path.isfile(path):
             check_tmp={}
-            with open(self.FilePath,'r') as check:
+            with open(path,'r') as check:
                 check_tmp=json.load(check)
             if sorted(list(check_tmp.keys()))==sorted(self.__WhereName__+['cumulative','typecode']):
                 isValid=TRUE
@@ -280,11 +368,12 @@ class Json_Data():
             pass
         return isValid
 
-    def check_his(self):
+    def check_his(self,path=""):
         isValid=FALSE
-        if os.path.isfile(self.HistoryPath):
+        if path=="":path=self.HistoryPath
+        if os.path.isfile(path):
             check_tmp={}
-            with open(self.HistoryPath,'r') as check:
+            with open(path,'r') as check:
                 check_tmp=json.load(check)
             if sorted(list(check_tmp.keys()))==sorted(['init','built','show','push','fail']):
                 isValid=TRUE
@@ -409,8 +498,15 @@ class Application(Frame):
         self.menu1.add_command(label='날짜 지정',command=self.saveasexcel_selected)
         self.menu1.add_command(label='모두 다',command=self.saveasexcel_all)
         self.menu1.add_separator()
-        self.menu1.add_command(label="변경 내역")
+        self.menu1.add_command(label="변경 내역",command=self.saveasexcel_history)
         self.menubar.add_cascade(label="엑셀화",menu=self.menu1)
+        self.menu2=Menu(self.menubar,tearoff=0)
+        self.menu2.add_command(label='데이터 불러오기',command=self.readjson_data)
+        self.menu2.add_command(label='히스토리 불러오기',command=self.readjson_history)
+        self.menu2.add_separator()
+        self.menu2.add_command(label='데이터 다른 이름으로 저장',command=self.saveasjson_data)
+        self.menu2.add_command(label='히스토리 다른 이름으로 저장',command=self.saveasjson_history)
+        self.menubar.add_cascade(label="세이브/로드",menu=self.menu2)
         self.master.config(menu=self.menubar)
 
     def create_widgets(self):
@@ -514,14 +610,14 @@ class Application(Frame):
         self.Table.Table.insert_data_from_json(json_data=self.savefile,allmode=self.viewmode)
 
     def saveasexcel_today(self):
-        sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile='noname.xlsx',defaultextension='.xlsx')
-        if sv is None:
+        sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile=today_date_str()+'.xlsx',defaultextension='.xlsx')
+        if sv == '' or sv is None:
             return
         self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=TRUE,excel_path=sv)
         
     def saveasexcel_all(self):
-        sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile='noname.xlsx',defaultextension='.xlsx')
-        if sv is None:
+        sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile='all.xlsx',defaultextension='.xlsx')
+        if sv == '' or sv is None:
             return
         self.savefile.modify_data_excelike(mode=TRUE,excel_path=sv)
         
@@ -529,6 +625,7 @@ class Application(Frame):
         sw=Toplevel(self.master)
         sw.geometry('300x120')
         sw.resizable(False,False)
+        sw.title('날짜를 선택하세요.')
         sdf=Frame(sw)
         sdf.pack()
         sdl=Label(sdf,text="Start :")
@@ -574,8 +671,8 @@ class Application(Frame):
             if len(tmp)<=0:
                 messagebox.showerror("날짜 선택","잘못된 날짜 범위 설정입니다.")
             else:
-                sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile='noname.xlsx',defaultextension='.xlsx')
-                if sv is None:
+                sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile=sde.get_date().strftime("%Y%m%d")+"_to_"+ede.get_date().strftime("%Y%m%d")+'.xlsx',defaultextension='.xlsx')
+                if sv == '' or sv is None:
                     return
                 self.savefile.modify_data_excelike(mode=TRUE,excel_path=sv,selected_dates=tmp)
         bdf=Frame(sw)
@@ -583,6 +680,45 @@ class Application(Frame):
         bdb=Button(bdf,text="엑셀화",command=bf)
         bdb.pack()
 
+    def saveasexcel_history(self):
+        sv=asksaveasfilename(title="경로 지정",filetypes=[("excel file",".xlsx")],initialdir="./data",initialfile='변경내역.xlsx',defaultextension='.xlsx')
+        if sv == '' or sv is None:
+            return
+        self.savefile.modify_history_excel(excel_path=sv)
+        
+    def saveasjson_data(self):
+        sv=asksaveasfilename(title="경로 지정",filetypes=[("json file(.json)",".json")],initialdir="./data",initialfile='save_data.json',defaultextension='.json')
+        if sv == '' or sv is None:
+            return
+        with open(sv,'w') as save:
+            json.dump(self.savefile.data,save,indent=4)
+            
+    def saveasjson_history(self):
+        sv=asksaveasfilename(title="경로 지정",filetypes=[("json file(.json)",".json")],initialdir="./data",initialfile='history_data.json',defaultextension='.json')
+        if sv == '' or sv is None:
+            return
+        with open(sv,'w') as save:
+            json.dump(self.savefile.history,save,indent=4)
+            
+    def readjson_history(self):
+        sv=askopenfilename(title="경로 지정",filetypes=[("json file(.json)",".json")],initialdir="./data")
+        if sv == '' or sv is None:
+            return
+
+        if self.savefile.check_his(path=sv):
+            shutil.copy2(sv,self.savefile.HistoryPath)
+            del self.savefile
+            self.master.destroy()
+            
+    def readjson_data(self):
+        sv=askopenfilename(title="경로 지정",filetypes=[("json file(.json)",".json")],initialdir="./data")
+        if sv == '' or sv is None:
+            return
+
+        if self.savefile.check_save(path=sv):
+            shutil.copy2(sv,self.savefile.FilePath)
+            del self.savefile
+            self.master.destroy()
     
     def quit_all(self):
         print("Quit All")
@@ -594,7 +730,6 @@ if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록
     while True:
         root=Tk()
         tr=Json_Data()
-        print(tr)
         app=Application(master=root,savefile=tr,image_sets=images_path)
         app.mainloop()
         if FILE_CLOSE:break

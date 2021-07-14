@@ -1,5 +1,5 @@
 {
-    "cumulative": 26,
+    "cumulative": 37,
     "typecode": "TR",
     "\ub178\ud2b8\ubd81": [
         {
@@ -7,6 +7,12 @@
             "where": "\ub178\ud2b8\ubd81",
             "\ub0a8\uc131": 11,
             "\uc5ec\uc131": 3
+        },
+        {
+            "date": "2021-07-15",
+            "where": "\ub178\ud2b8\ubd81",
+            "\ub0a8\uc131": 1,
+            "\uc5ec\uc131": 2
         }
     ],
     "\ud504\ub9b0\ud2b8": [
@@ -15,6 +21,12 @@
             "where": "\ud504\ub9b0\ud2b8",
             "\ub0a8\uc131": 3,
             "\uc5ec\uc131": 4
+        },
+        {
+            "date": "2021-07-15",
+            "where": "\ud504\ub9b0\ud2b8",
+            "\ub0a8\uc131": 4,
+            "\uc5ec\uc131": 1
         }
     ],
     "\uad00\ub0b4\uc5f4\ub78c": [
@@ -23,6 +35,12 @@
             "where": "\uad00\ub0b4\uc5f4\ub78c",
             "\ub0a8\uc131": 2,
             "\uc5ec\uc131": 4
+        },
+        {
+            "date": "2021-07-15",
+            "where": "\uad00\ub0b4\uc5f4\ub78c",
+            "\ub0a8\uc131": 1,
+            "\uc5ec\uc131": 2
         }
     ]
 }
