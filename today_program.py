@@ -22,6 +22,7 @@ today_file_path='data/today_result.json'
 history_file_path='data/today_history.json'
 icon_path='checkbox/logo.ico'
 excel_path='data_excel.xlsx'
+images_path=['places/notebook.png','places/print.png','places/dvd.png']
 
 FILE_CLOSE = FALSE
 
@@ -36,7 +37,13 @@ def today_date_str():
 
 def now_time_str():
     return today_date_str()+datetime.datetime.now().strftime(" %I:%M:%S %p")
-    
+
+def imageModifier(FILE_PATH,x,y):#아미지 사이즈 재설정 함수
+    img1=Image.open(FILE_PATH)
+    img1=img1.resize((x,y),Image.ANTIALIAS)
+    resized_img1=ImageTk.PhotoImage(img1)
+    return resized_img1
+
 class Json_Data():
     def __init__(self,FilePath=today_file_path,HistoryPath=history_file_path,whereList=["노트북",'프린트','관내열람'],genderList=['남성','여성']):#생성자
         self.FilePath=FilePath
@@ -356,10 +363,11 @@ class TableSet():
         self.Table.pack(fill="x")
         
 class Application(Frame):
-    def __init__(self,master=None,savefile=None):
+    def __init__(self,master=None,savefile=None,image_sets=[]):
         super().__init__(master)
         self.master = master
         self.savefile = savefile
+        self.image_sets = image_sets
         print(self.savefile.data)
         self.window_set()
         self.pack()
@@ -421,15 +429,16 @@ class Application(Frame):
         self.Buttons=[]
         for place_index in range(len(self.savefile.__WhereName__)):
             SBF=Frame(self.ButtonField,relief='solid',bd=2)
-            if len(self.savefile.__WhereName__)%2==0:
-                if place_index<=(len(self.savefile.__WhereName__)/2)-1:SBF.pack(side="left",fill='both')
-                else:SBF.pack(side="left",fill='both')
-            else:
-                if place_index<(len(self.savefile.__WhereName__)-1)/2:SBF.pack(side="left",fill='both')
-                elif place_index==(len(self.savefile.__WhereName__)-1)/2:SBF.pack(side='left',fill='both')
-                else:SBF.pack(side="left",fill='both')
-
             self.SubButtonFields.append(SBF)
+            if len(self.image_sets)!=0:
+                SBIF=Frame(self.ButtonField,relief='solid',bd=2)
+                self.SubButtonFields.append(SBIF)
+                SBIF.pack(fill='both',side='left')
+                img=imageModifier(self.image_sets[place_index%len(self.image_sets)],200,200)
+                image=Label(SBIF,image=img)
+                image.image=img
+                image.pack(fill='both')
+            SBF.pack(fill='both',side='left')
             for gender in self.savefile.__Gender__:
                 button=Button(SBF,text=self.savefile.__WhereName__[place_index]+" "+gender,font=self.fontStyle)
                 button.pack()
@@ -473,6 +482,6 @@ if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록
         root=Tk()
         tr=Json_Data()
         print(tr)
-        app=Application(master=root,savefile=tr)
+        app=Application(master=root,savefile=tr,image_sets=images_path)
         app.mainloop()
         if FILE_CLOSE:break
