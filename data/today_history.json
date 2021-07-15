@@ -1103,6 +1103,12 @@
             "time": "2021-07-15 05:57:16 PM",
             "type": "init",
             "isSucess": 1
+        },
+        {
+            "user": "rayan",
+            "time": "2021-07-15 10:00:51 PM",
+            "type": "init",
+            "isSucess": 1
         }
     ],
     "push": [
@@ -10138,6 +10144,15 @@
         {
             "user": "user",
             "time": "2021-07-15 05:57:17 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "rayan",
+            "time": "2021-07-15 10:00:51 PM",
             "type": "show",
             "isSucess": 1,
             "dates": [

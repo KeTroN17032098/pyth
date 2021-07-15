@@ -25,6 +25,7 @@ import webbrowser
 
 
 
+
 today_file_path='data/today_result.json'
 history_file_path='data/today_history.json'
 icon_path='checkbox/logo.ico'
