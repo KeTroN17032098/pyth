@@ -1055,6 +1055,54 @@
             "time": "2021-07-15 03:06:43 PM",
             "type": "init",
             "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:32:09 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:48:01 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:49:15 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:49:50 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:52:28 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:53:48 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:54:44 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:57:16 PM",
+            "type": "init",
+            "isSucess": 1
         }
     ],
     "push": [
@@ -9847,6 +9895,249 @@
         {
             "user": "user",
             "time": "2021-07-15 03:06:43 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:32:09 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:30 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-14"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:30 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:32 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:33 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-14"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:33 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:41 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:42 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-14"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:42 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:42 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:43 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-14"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:43 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:53 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-14"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:33:53 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:48:02 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:48:08 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:49:16 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:49:22 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:49:50 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:49:56 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:52:28 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:52:34 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:53:49 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:53:55 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:54:44 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:54:51 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 05:57:17 PM",
             "type": "show",
             "isSucess": 1,
             "dates": [

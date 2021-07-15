@@ -277,6 +277,7 @@ class Json_Data():
             max_length =0
             column_col=col[0].column_letter
             for cell in col:
+                cell.alignment=Alignment(horizontal='center',vertical='center')
                 try:
                     if cell.column_letter in cl or cell.row in ri:cell.border=thick_border
                     if len(str(cell.value)) > max_length:
@@ -361,6 +362,19 @@ class Json_Data():
                             cell.fill=PatternFill(patternType='solid',fgColor=Color('008000'))
                             cell.font=F
                 ws.append(["총합"," "]+sum_row)
+                kolase=[]
+                for kas in range(len(self.__Gender__)):
+                    j=0
+                    for suro in range(len(sum_row)):
+                        if suro%len(self.__Gender__)==kas:
+                            j+=sum_row[suro]
+                    kolase.append(j)
+                kolase[0]-=sum_row[-1]
+                kartli=[]
+                for genko in range(len(self.__Gender__)):
+                    kartli.append(self.__Gender__[genko]+ " 총합 :")
+                    kartli.append(kolase[genko])
+                ws.append(["",""]+kartli)
                 self.adjust_cell_width(ws,value=2.4,cl=['A','B'])
                 ws.column_dimensions['A'].width=5
                 wb.save(excel_path)
@@ -437,7 +451,7 @@ class Table(ttk.Treeview):
         else:
             self.add_columns(columns)
             for key in range(len(columns)):
-                self.column(columns[key],width=self.WIDTH,minwidth=self.MINWIDTH)
+                self.column(columns[key],width=self.WIDTH,minwidth=self.MINWIDTH,anchor=tk.N)
     def add_columns(self,columns,**kwargs):
         current_columns=list(self['columns'])
         current_columns={key:self.heading(key) for key in current_columns}
