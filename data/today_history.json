@@ -1031,6 +1031,30 @@
             "time": "2021-07-15 02:30:54 PM",
             "type": "init",
             "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 02:37:14 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 02:44:07 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 02:46:53 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 03:06:43 PM",
+            "type": "init",
+            "isSucess": 1
         }
     ],
     "push": [
@@ -9787,6 +9811,42 @@
         {
             "user": "User",
             "time": "2021-07-15 02:30:55 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 02:37:15 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 02:44:08 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 02:46:54 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 03:06:43 PM",
             "type": "show",
             "isSucess": 1,
             "dates": [

@@ -21,6 +21,7 @@ import openpyxl
 from openpyxl.styles import Font,Alignment,PatternFill,Color
 import shutil
 from openpyxl.styles.borders import Border, Side
+import webbrowser
 
 
 
@@ -535,8 +536,8 @@ class Application(Frame):
         self.menu2.add_command(label='히스토리 다른 이름으로 저장',command=self.saveasjson_history)
         self.menubar.add_cascade(label="세이브/로드",menu=self.menu2)
         self.menu3=Menu(self.menubar,tearoff=0)
-        self.menu3.add_command(label="설명서")
-        self.menu3.add_command(label="Copyrights")
+        self.menu3.add_command(label="설명서",command=self.show_help)
+        self.menu3.add_command(label="Copyrights",command=self.show_copyright)
         self.menubar.add_cascade(label="도움",menu=self.menu3)
         self.master.config(menu=self.menubar)
 
@@ -760,7 +761,12 @@ class Application(Frame):
             except shutil.SameFileError:
                 messagebox.showerror("파일 오류","현재 저장 파일과 동일합니다.")
                 return
-            
+    
+    def show_help(self):
+        webbrowser.open('help.pdf')
+        
+    def show_copyright(self):
+        webbrowser.open('copyright.pdf')    
     
     def quit_all(self):
         print("Quit All")
