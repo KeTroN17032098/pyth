@@ -1,6 +1,6 @@
 import json
 from tkinter import *
-import webbrowser
+import time
 import os.path
 import tkinter.ttk as ttk
 from tkinter import messagebox
@@ -20,6 +20,8 @@ import pandas as pd
 import openpyxl
 from openpyxl.styles import Font,Alignment,PatternFill,Color
 import shutil
+from openpyxl.styles.borders import Border, Side
+
 
 
 today_file_path='data/today_result.json'
@@ -78,6 +80,7 @@ class Json_Data():
             if self.check_his():
                 with open(self.HistoryPath,"r") as h:
                     self.history=json.load(h)
+                    self.add_history_member(type='built')
                     self.add_history_member(type='init')
             else:
                 self.history['init']=[]
@@ -246,6 +249,7 @@ class Json_Data():
                     ws.cell(row=index+2,column=1).value=index+1
                     ws.cell(row=index+2,column=1).alignment=Alignment(horizontal='center',vertical='center')
                     ws.cell(row=index+2,column=1).fill=PatternFill(patternType='solid',fgColor=Color('008000'))
+                    ws.cell(row=index+2,column=1).font=Font(bold=TRUE,color=Color('ffffff'))
                     for cl in range(len(columns_h[key])):
                         if type(self.history[key][index][columns_h[key][cl]])!=list:ws.cell(row=index+2,column=cl+2).value=self.history[key][index][columns_h[key][cl]]
                         else:ws.cell(row=index+2,column=cl+2).value=str(self.history[key][index][columns_h[key][cl]])
@@ -256,27 +260,33 @@ class Json_Data():
         wb.remove(wb['Sheet'])
         try:
             wb.save(excel_path)
+            os.startfile(excel_path)
         except PermissionError:
             messagebox.showerror("PermissionError","파일을 닫아주세요.")
 
-    def adjust_cell_width(self, ws,value=1.2):
+    def adjust_cell_width(self, ws,value=1.2,cl=['A'],ri=[1]):
         """
-        Adjust cell width
+        Adjust cell width/make (.1)&(A.) thick
         ws : worksheet handle from openpyxl
+        cl : options to make other columns thick default : ['a']
+        ri : options to make other rows thick default : [1]
         """
+        thick_border=Border(left=Side(style='thick'),right=Side(style='thick'),top=Side(style='thick'),bottom=Side(style='thick'))
         for col in ws.columns:
             max_length =0
             column_col=col[0].column_letter
             for cell in col:
                 try:
+                    if cell.column_letter in cl or cell.row in ri:cell.border=thick_border
                     if len(str(cell.value)) > max_length:
                         max_length = len(str(cell.value))
                 except:
+                    print('kr')
                     pass
             adjusted_width=(max_length+2)*value
             print(column_col)
-            print(adjusted_width)
-            ws.column_dimensions[column_col].width=int(adjusted_width)
+            print(int(adjusted_width))
+            ws.column_dimensions[str(column_col)].width=int(adjusted_width)
         
         
     
@@ -328,15 +338,32 @@ class Json_Data():
                 sum_row=[]
                 for c in ws.columns:
                     column_ind=c[0].column_letter
+                    c[0].alignment=Alignment(horizontal='center',vertical='center')
+                    c[0].fill=PatternFill(patternType='solid',fgColor=Color('FFC000'))
                     if column_ind !='A' and column_ind !='B':
                         tmp_add=0
                         for cell in c:
+                            cell.alignment=Alignment(horizontal='center',vertical='center')
                             if cell.row!=1:
                                 tmp_add+=int(cell.value)
                         sum_row.append(tmp_add)
+                    elif column_ind=='A':
+                        F=Font(bold=TRUE,color=Color('ffffff'))
+                        for cell in c:
+                            cell.alignment=Alignment(horizontal='center',vertical='center')
+                            cell.fill=PatternFill(patternType='solid',fgColor=Color('008000'))
+                            cell.font=F
+                    else:
+                        F=Font(bold=TRUE,color=Color('ffffff'))
+                        for cell in c:
+                            cell.alignment=Alignment(horizontal='center',vertical='center')
+                            cell.fill=PatternFill(patternType='solid',fgColor=Color('008000'))
+                            cell.font=F
                 ws.append(["총합"," "]+sum_row)
-                self.adjust_cell_width(ws,value=2.4)
+                self.adjust_cell_width(ws,value=2.4,cl=['A','B'])
+                ws.column_dimensions['A'].width=5
                 wb.save(excel_path)
+                os.startfile(excel_path)
             except PermissionError:
                 messagebox.showerror("PermissionError","파일을 닫아주세요.")
         return result
@@ -591,7 +618,10 @@ class Application(Frame):
             now=now_time_str().center(21," ")
             self.DateEntry.insert(END,now)
         except RuntimeError:
-            print("쓰레드 "+threading.current_thread().name+" 종료")
+            print("런타임 에러 :쓰레드 "+threading.current_thread().name+" 종료")
+            return
+        except TclError:
+            print("TCL 에러 :쓰레드 "+threading.current_thread().name+" 종료")
             return
         
         threading.Timer(1,self.updateDateEntry).start()
@@ -706,19 +736,27 @@ class Application(Frame):
             return
 
         if self.savefile.check_his(path=sv):
-            shutil.copy2(sv,self.savefile.HistoryPath)
-            del self.savefile
-            self.master.destroy()
+            try:
+                shutil.copy2(sv,self.savefile.HistoryPath)
+                del self.savefile
+                self.master.destroy()
+            except shutil.SameFileError:
+                messagebox.showerror("파일 오류","현재 저장 파일과 동일합니다.")
+                return
             
     def readjson_data(self):
         sv=askopenfilename(title="경로 지정",filetypes=[("json file(.json)",".json")],initialdir="./data")
         if sv == '' or sv is None:
             return
-
         if self.savefile.check_save(path=sv):
-            shutil.copy2(sv,self.savefile.FilePath)
-            del self.savefile
-            self.master.destroy()
+            try:
+                shutil.copy2(sv,self.savefile.FilePath)
+                del self.savefile
+                self.master.destroy()
+            except shutil.SameFileError:
+                messagebox.showerror("파일 오류","현재 저장 파일과 동일합니다.")
+                return
+            
     
     def quit_all(self):
         print("Quit All")
@@ -732,4 +770,9 @@ if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록
         tr=Json_Data()
         app=Application(master=root,savefile=tr,image_sets=images_path)
         app.mainloop()
-        if FILE_CLOSE:break
+        time.sleep(2)
+        if FILE_CLOSE:
+            del app
+            del tr
+            del root
+            break
