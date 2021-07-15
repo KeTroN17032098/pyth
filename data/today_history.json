@@ -1025,6 +1025,12 @@
             "time": "2021-07-15 11:32:34 AM",
             "type": "init",
             "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-15 02:30:54 PM",
+            "type": "init",
+            "isSucess": 1
         }
     ],
     "push": [
@@ -9772,6 +9778,15 @@
         {
             "user": "User",
             "time": "2021-07-15 11:32:38 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-15 02:30:55 PM",
             "type": "show",
             "isSucess": 1,
             "dates": [

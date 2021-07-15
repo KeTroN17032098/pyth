@@ -534,6 +534,10 @@ class Application(Frame):
         self.menu2.add_command(label='데이터 다른 이름으로 저장',command=self.saveasjson_data)
         self.menu2.add_command(label='히스토리 다른 이름으로 저장',command=self.saveasjson_history)
         self.menubar.add_cascade(label="세이브/로드",menu=self.menu2)
+        self.menu3=Menu(self.menubar,tearoff=0)
+        self.menu3.add_command(label="설명서")
+        self.menu3.add_command(label="Copyrights")
+        self.menubar.add_cascade(label="도움",menu=self.menu3)
         self.master.config(menu=self.menubar)
 
     def create_widgets(self):
