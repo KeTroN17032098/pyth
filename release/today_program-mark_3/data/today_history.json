@@ -1,0 +1,31 @@
+{
+    "init": [
+        {
+            "user": "user",
+            "time": "2021-07-15 03:22:07 PM",
+            "type": "init",
+            "isSucess": 1
+        }
+    ],
+    "push": [],
+    "show": [
+        {
+            "user": "user",
+            "time": "2021-07-15 03:22:07 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        }
+    ],
+    "built": [
+        {
+            "user": "user",
+            "time": "2021-07-15 03:22:07 PM",
+            "type": "built",
+            "isSucess": 1
+        }
+    ],
+    "fail": []
+}

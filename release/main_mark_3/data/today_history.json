@@ -1,0 +1,94 @@
+{
+    "init": [
+        {
+            "user": "user",
+            "time": "2021-07-15 03:08:16 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 03:11:06 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 03:29:15 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 04:51:09 PM",
+            "type": "init",
+            "isSucess": 1
+        }
+    ],
+    "push": [],
+    "show": [
+        {
+            "user": "user",
+            "time": "2021-07-15 03:08:16 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 03:08:19 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 03:08:20 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 03:11:06 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 03:29:15 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-15 04:51:09 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-15"
+            ]
+        }
+    ],
+    "built": [
+        {
+            "user": "user",
+            "time": "2021-07-15 03:08:16 PM",
+            "type": "built",
+            "isSucess": 1
+        }
+    ],
+    "fail": []
+}
