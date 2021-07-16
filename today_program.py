@@ -22,6 +22,7 @@ from openpyxl.styles import Font,Alignment,PatternFill,Color
 import shutil
 from openpyxl.styles.borders import Border, Side
 import webbrowser
+import sys
 
 
 
@@ -181,7 +182,7 @@ class Json_Data():
             return
         else: self.check_date()
 
-    def show_data(self,start=today_date_str(),end=today_date_str()):#특정 기간의 데이터 검색
+    def show_data(self,start=today_date_str(),end=today_date_str(),mode=FALSE):#특정 기간의 데이터 검색
         end_date=datetime.datetime.strptime(end, '%Y-%m-%d')
         start_date=datetime.datetime.strptime(start, '%Y-%m-%d')
         result=[]
@@ -199,7 +200,7 @@ class Json_Data():
                         if datetime.datetime.strptime(data['date'],'%Y-%m-%d')==time:
                             result.append(data)
                             break
-        self.add_history_member(type='show',showdates=(start,end))
+        if mode:self.add_history_member(type='show',showdates=(start,end))
         return result
                 
     def push_data(self,date=today_date_str(),gender="",where="",count=1):#날짜/성별/장소 를 지정 count만큼 추가
@@ -281,6 +282,7 @@ class Json_Data():
                 cell.alignment=Alignment(horizontal='center',vertical='center')
                 try:
                     if cell.column_letter in cl or cell.row in ri:cell.border=thick_border
+                    if cell.value==0:cell.value='-'
                     if len(str(cell.value)) > max_length:
                         max_length = len(str(cell.value))
                 except:
@@ -318,7 +320,7 @@ class Json_Data():
         columns_d+=columns_name
         columns_d+=['총합']
         for date in range(len(dates)):
-            sd=self.show_data(dates[date],dates[date])
+            sd=self.show_data(start=dates[date],end=dates[date],mode=TRUE)
             tmp=[dates[date]]
             for place in self.__WhereName__:
                 for gender in self.__Gender__:
@@ -375,7 +377,16 @@ class Json_Data():
                 for genko in range(len(self.__Gender__)):
                     kartli.append(self.__Gender__[genko]+ " 총합 :")
                     kartli.append(kolase[genko])
+                place_total=[]
+                GT=len(self.__Gender__)
+                for plag in range(len(self.__WhereName__)):
+                    loki=0
+                    for geni in range(GT):
+                        loki+=sum_row[plag*GT+geni]
+                    place_total.append(self.__WhereName__[plag]+" 총합 :")
+                    place_total.append(loki)
                 ws.append(["",""]+kartli)
+                ws.append(["",""]+place_total)
                 self.adjust_cell_width(ws,value=2.4,cl=['A','B'])
                 ws.column_dimensions['A'].width=5
                 wb.save(excel_path)
@@ -481,6 +492,9 @@ class Table(ttk.Treeview):
             print(tmp)
             for data in range(len(tmp)):
                 date=tmp[str(data+1)].pop(0)
+                for kas in range(len(tmp[str(data+1)])):
+                    if tmp[str(data+1)][kas]==0:
+                        tmp[str(data+1)][kas]="-"
                 self.insert('','end',text=date,values=tuple(tmp[str(data+1)]),iid=str(data+1)+'번')
         else:
             tmp=json_data.modify_data_excelike(selected_dates=date_range(date_s,date_f),mode=FALSE)
@@ -488,6 +502,9 @@ class Table(ttk.Treeview):
             print(tmp)
             for data in range(len(tmp)):
                 date=tmp[str(data+1)].pop(0)
+                for kas in range(len(tmp[str(data+1)])):
+                    if tmp[str(data+1)][kas]==0:
+                        tmp[str(data+1)][kas]="-"
                 self.insert('','end',text=date,values=tuple(tmp[str(data+1)]),iid=str(data+1)+'번')
                 
     def clear_table(self):
@@ -795,9 +812,11 @@ if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록
         tr=Json_Data()
         app=Application(master=root,savefile=tr,image_sets=images_path)
         app.mainloop()
-        time.sleep(2)
+        time.sleep(5)
         if FILE_CLOSE:
             del app
             del tr
             del root
             break
+    
+    sys.exit()
