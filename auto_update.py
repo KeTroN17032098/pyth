@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import shutil
 from distutils.dir_util import copy_tree
-import win32com.client
+import winshell
 
 class Github_Check:
     def __init__(self,link="https://github.com/KeTroN17032098/pyth/releases/latest",
@@ -104,14 +104,13 @@ class DataTransfer:
         
 class ShortCut_Maker:
     def __init__(self,path=r'C:\Users\Public\Desktop',name='shortcut'):
-        self.path=os.path.join(path,name+'.lnk')
+        self.path=path+'\\'+name+'.lnk'
     def make(self,target='',icon=''):
         if os.path.isfile(target) and os.path.isfile(icon):
-            shell=win32com.client.Dispatch('Wscript.Shell')
-            shortcut=shell.CreateShortcut(self.path)
-            shortcut.TargetPath=target
-            shortcut.IconLocation=icon
-            shortcut.save()
+            with winshell.shortcut(self.path) as link:
+                link.path=self.target
+                link.description='MG_TOOL'
+                link.icon_location=icon
             return True
         else:
             return False
@@ -154,8 +153,6 @@ class Update_Manager:
             try:
                 self.DT=DataTransfer(self.data_dir,mode='dir')
                 self.DT.transfer(self.new_file_dir)
-                self.SCM=ShortCut_Maker(name='매니지먼트_툴')
-                self.SCM.make(target=self.new_file_dir+r'\main.exe',icon=self.new_file_dir+r'\checkbox\logo copy.ico')
                 return True
             except FileNotFoundError:print('파일 없음')
             except: print('Error')
