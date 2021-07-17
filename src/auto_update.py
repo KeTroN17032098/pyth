@@ -235,7 +235,8 @@ class Update_Manager:
         for asdf in pre_list:
             hgdf=os.path.join(Path(self.self_current_dir).parent,asdf)
             if os.path.isdir(hgdf):
-                cl_list.append(hgdf)
+                if hgdf!=self.self_current_dir:
+                    cl_list.append(hgdf)
         with open(str(Path(self.self_current_dir).parent)+r'\clean.bat','w') as dsafadgfr:
             for fgasdfdartgdfa in cl_list:
                 dsafadgfr.write('@RD /S /Q "'+fgasdfdartgdfa+'"\n')
