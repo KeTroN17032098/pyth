@@ -1,6 +1,7 @@
 from tkinter import *
 import os
 import webbrowser
+import sys
 
 class App(Frame):
     def __init__(self,master=None):
@@ -9,7 +10,6 @@ class App(Frame):
         self.master.geometry('270x230')
         self.master.title('통합 프로그램')
         self.pack(fill='both',expand=1)
-        self.run_update()
         bt1=Button(self,text="블랙리스트",command=self.run_blacks)
         bt1.pack()
         lb=Label(self,text="원하시는 툴을 선택하세요.")
@@ -37,6 +37,7 @@ class App(Frame):
     
     def run_update(self):
         os.startfile('auto_update.exe')
+        sys.exit()
     
     def show_help(self):
         webbrowser.open('help.pdf')
