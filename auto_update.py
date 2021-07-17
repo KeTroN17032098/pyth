@@ -1,5 +1,5 @@
 from http.client import HTTPMessage, HTTPResponse
-from tkinter import messagebox
+from tkinter import Label, Tk, messagebox
 import requests
 from urllib import request
 from urllib.error import HTTPError
@@ -13,6 +13,7 @@ import shutil
 from distutils.dir_util import copy_tree
 import winshell
 import win32com.client, pythoncom
+import atexit
 
 class Github_Check:
     def __init__(self,ID='KeTroN17032098',repo='pyth'):
@@ -20,15 +21,17 @@ class Github_Check:
         self.repo=repo
         self.URL='https://github.com/'+self.ID+'/'+self.repo+'/releases/latest'
         self.URL2='https://github.com/'+self.ID+'/'+self.repo+'/releases'
-        print(self.URL)
     
     def get_all_ver_names(self):
         resp=requests.get(self.URL2)
         if resp.status_code==200:
             html=resp.text
             soup=BeautifulSoup(html,'html.parser')
-            a=soup.find_all('div',attrs={'class':'release-header'})
-            return a.get('a')
+            aa=soup.find_all('div',attrs={'class':'f1 flex-auto min-width-0 text-normal'})
+            a=[]
+            for aas in aa:
+                a.append(aas.text.replace('\n',''))
+            return a
 
     def get_latest_name(self):
         resp=requests.get(self.URL)
@@ -158,63 +161,77 @@ class ShortCut_Maker:
         shortcut.IconLocation = self.target
         shortcut.save()
         
-         
+class Update_Manager:
+    def __init__(self,version_file='version.txt',Github_Id='KeTroN17032098',Github_Repository='pyth'):
+        self.tk=Tk()
+        self.tk.geometry('200x30')
+        self.tk.title('Auto_Update')
+        self.label=Label(self.tk,text="Don't Close. Updating program")
+        self.label.pack()
+        self.version=""
+        self.ver_list=[]
+        self.self_current_dir=os.path.dirname(__file__)
+        self.ver_file=version_file
+        self.G_ID=Github_Id
+        self.G_Repository=Github_Repository
+        if self.update_checker():
+            pa=self.dowload_file()
+            if pa!='':
+                self.CFE=Compressed_File_Extractor(pa)
+                go=self.CFE.extract(dir=os.path.join(Path(self.self_current_dir).parent,self.latest_name))
+                if go!='':
+                    self.DT=DataTransfer(prev_data=self.self_current_dir+r'\data',mode='dir')
+                    laza=self.DT.transfer(dir_path=go,dirname='data')
+                    if laza!='':
+                        self.SVM=ShortCut_Maker(go+r'\main.exe')
+                        self.SVM.make(name="매니지먼트 툴")
+                        if messagebox.askyesno("성공",'모든 업데이트가 끝났습니다.\n원래 파일을 삭제하겠습니까?'):
+                            atexit.register(lambda dir=self.self_current_dir:go_OUT(dir))
+                    else:
+                        messagebox.showerror("실패",'데이터 파일 복사에 실패했습니다.')
+                else:
+                    messagebox.showerror("실패",'압축 파일 추출에 실패했습니다.')
+            else:
+                messagebox.showerror("실패",'다운로드에 실패했습니다.')
+        else:
+            messagebox.showinfo("최신",'업데이트가 감지되지 않았습니다.')
+            
+            
+            
+    def check_my_version(self):
+        tmp=[]
+        with open(self.ver_file,'r') as read:
+            tmp=read.readlines()
+        self.version=tmp[0]
+        self.ver_list=tmp[1].split(',')
+    
+    def check_latest_version(self):
+        self.GC=Github_Check(self.G_ID,self.G_Repository)
+        latest_list=self.GC.get_all_ver_names()
+        self.latest_name=self.GC.get_latest_name()
+        if self.version!=self.latest_name:
+            if self.latest_name not in self.ver_list:
+                return True
+        return False
         
-        
+    def update_checker(self):
+        self.check_my_version()
+        if self.check_latest_version():
+            if messagebox.askyesno('Update Found','Found New Release from Github.\n Would you like to update now?'):
+                return True
+        return False
+    
+    def dowload_file(self):
+        return self.GC.get_file()
 
-# class Update_Manager:
-#     def __init__(self):
-#         self.self_version=self.check_self_version()
-#         self.latest_version=self.check_latest_version()
-#         self.currnet_dir=os.getcwd()
-#         for i in range(self.self_version-1):
-#             os.system(self.currnet_dir+r'\delete.exe dir '+str(Path(self.currnet_dir).parent)+r'\main'+str(i+1))
-#         self.data_dir=self.currnet_dir+r'\data'
-#         if self.self_version<self.latest_version:
-#            self.start_update(path=Path(self.currnet_dir).parent)
-#         else:
-#             messagebox.showinfo('Updater','현 파일은 최신입니다.')
-            
-       
-#     def check_self_version(self):
-#         with open('version.txt','r') as vrst:
-#             tmp=vrst.read()
-#         tmp=tmp.split('.')[1]
-#         print('self : '+tmp)
-#         return int(tmp)
-    
-#     def check_latest_version(self):
-#         self.gc=Github_Check()
-#         tmp=self.gc.get_latest_name()
-#         tmp=tmp.split('.')[1]
-#         print('latest : '+tmp)
-#         return int(tmp)
-    
-#     def start_update(self,path):
-#         udfp=self.gc.get_file(path=str(path))
-#         self.CFE=Compressed_File_Extractor(udfp)
-#         self.new_file_dir=str(path)+r'\main'+str(self.check_latest_version())
-#         if self.CFE.extract(dir=self.new_file_dir):
-#             try:
-#                 self.DT=DataTransfer(self.data_dir,mode='dir')
-#                 self.DT.transfer(self.new_file_dir)
-#                 self.SM=ShortCut_Maker()
-#                 self.SM.make(self.new_file_dir+r'\main.exe')
-#                 return True
-#             except FileNotFoundError:print('파일 없음')
-#             except: print('Error')
-#         return False
-            
-        
+def go_OUT(dir):
+    with open(str(Path(dir).parent)+r'\Batch.bat','w') as dsa:
+        a='TASKKILL /IM "'+os.getpid()+'"'
+        b='DEL "'+dir+'"'
+        dsa.write(a)
+        dsa.write(b)
+    os.system('pause')
     
 if __name__ == "__main__":
-   gc=Github_Check()
-   print(gc.get_latest_name())
-   print(gc.get_all_ver_names())
-#    CFE=Compressed_File_Extractor(gc.get_file())
-#    exdir=CFE.extract()
-#    DF=DataTransfer(prev_data=exdir,mode="dir")
-#    asd=DF.transfer(dir_path=r'C:\Users\Public\Documents',dirname='Zega')
-#    print(asd)
-#    SM=ShortCut_Maker(asd+r'\main.exe')
-#    SM.make()
+    um=Update_Manager()
+    del um
