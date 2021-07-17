@@ -12,13 +12,23 @@ from pathlib import Path
 import shutil
 from distutils.dir_util import copy_tree
 import winshell
+import win32com.client, pythoncom
 
 class Github_Check:
     def __init__(self,ID='KeTroN17032098',repo='pyth'):
         self.ID=ID
         self.repo=repo
         self.URL='https://github.com/'+self.ID+'/'+self.repo+'/releases/latest'
+        self.URL2='https://github.com/'+self.ID+'/'+self.repo+'/releases'
+        print(self.URL)
     
+    def get_all_ver_names(self):
+        resp=requests.get(self.URL2)
+        if resp.status_code==200:
+            html=resp.text
+            soup=BeautifulSoup(html,'html.parser')
+            a=soup.find_all('div',attrs={'class':'release-header'})
+            return a.get('a')
 
     def get_latest_name(self):
         resp=requests.get(self.URL)
@@ -49,6 +59,11 @@ class Compressed_File_Extractor:
             self.target_type=""
         
     def extract(self,dir=""):
+        '''
+        Extract target file(7z,zip)
+        dir : path of dir to extract if dir not exists it would be generated. Default = make Extract dir in Compressed File exits
+        returns path to dir where file extracted or empty string object if it failed
+        '''
         if dir!="":
             if os.path.isdir(dir):
                 pass
@@ -97,7 +112,7 @@ class DataTransfer:
         # dir_path : directory to transfer file Defalt=C:\Users\Public\Downloads
         # dirname : if you want to make a directory under path write name on it
         # If there is same file, it will write on it
-        # Returns True if it didn't occur Error
+        # Returns path or empty str
         
         if dirname=="":pass
         else:dir_path=dir_path+'\\'+dirname
@@ -106,38 +121,44 @@ class DataTransfer:
                 if os.path.isdir(dir_path):pass
                 else:os.makedirs(dir_path)
                 shutil.copy2(self.__prev_data_path__,os.path.abspath(dir_path+'\\'+self.__prev_data_path__.split('\\')[-1]))
-                return True
+                return dir_path+'\\'+self.__prev_data_path__.split('\\')[-1]
             except:
                 print('File Error')
                 print(self.__prev_data_path__+' to '+dir_path+'\\'+self.__prev_data_path__.split('\\')[-1])
-                return False
+                return ''
         elif self.__prev_dir_path__!="":
             try:
                 shutil.copytree(self.__prev_dir_path__,os.path.abspath(dir_path))
-                return True
+                return dir_path
             except shutil.SameFileError:
                 print('start and end is same')
                 print(self.__prev_dir_path__+' to '+dir_path)
-                return False
+                return ''
             except FileExistsError:
                 print('has file with same name')
                 print(self.__prev_dir_path__+' to '+dir_path)
                 copy_tree(self.__prev_dir_path__,os.path.abspath(dir_path))
+                return dir_path
+            except PermissionError:
+                return ''
         else:
-            return False
+            return ''
+ 
+class ShortCut_Maker:
+    def __init__(self,target):
+        self.target = target
+    
+    def make(self,name='LAK'):
+        desktop = winshell.desktop()
+        #desktop = r"path to where you wanna put your .lnk file"
+        path = os.path.join(desktop, name+'.lnk')
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(path)
+        shortcut.Targetpath = self.target
+        shortcut.IconLocation = self.target
+        shortcut.save()
         
-# class ShortCut_Maker:
-#     def __init__(self,path=r'C:\Users\Public\Desktop',name='shortcut'):
-#         self.path=path+'\\'+name+'.lnk'
-#     def make(self,target='',icon=''):
-#         if os.path.isfile(target) and os.path.isfile(icon):
-#             with winshell.shortcut(self.path) as link:
-#                 link.path=self.target
-#                 link.description='MG_TOOL'
-#                 link.icon_location=icon
-#             return True
-#         else:
-#             return False
+         
         
         
 
@@ -189,7 +210,11 @@ class DataTransfer:
 if __name__ == "__main__":
    gc=Github_Check()
    print(gc.get_latest_name())
-   CFE=Compressed_File_Extractor(gc.get_file())
-   exdir=CFE.extract()
-   DF=DataTransfer(prev_data=exdir,mode="dir")
-   DF.transfer(dir_path=r'C:\Users\Public\Documents',dirname='Zega')
+   print(gc.get_all_ver_names())
+#    CFE=Compressed_File_Extractor(gc.get_file())
+#    exdir=CFE.extract()
+#    DF=DataTransfer(prev_data=exdir,mode="dir")
+#    asd=DF.transfer(dir_path=r'C:\Users\Public\Documents',dirname='Zega')
+#    print(asd)
+#    SM=ShortCut_Maker(asd+r'\main.exe')
+#    SM.make()
