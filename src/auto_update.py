@@ -160,6 +160,7 @@ class ShortCut_Maker:
         shortcut = shell.CreateShortCut(path)
         shortcut.Targetpath = self.target
         shortcut.IconLocation = self.target
+        shortcut.WorkingDirectory = os.path.dirname(self.target)
         shortcut.save()
         
 class Update_Manager:
