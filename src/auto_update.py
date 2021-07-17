@@ -227,6 +227,21 @@ class Update_Manager:
         
     def update_checker(self):
         self.check_my_version()
+        pre_list=[]
+        for fsd in self.ver_list:
+            if fsd!=self.version:
+                pre_list.append(fsd)
+        cl_list=[]
+        for asdf in pre_list:
+            hgdf=os.path.join(Path(self.self_current_dir).parent,asdf)
+            if os.path.isdir(hgdf):
+                cl_list.append(hgdf)
+        with open(str(Path(self.self_current_dir).parent)+r'\clean.bat','w') as dsafadgfr:
+            for fgasdfdartgdfa in cl_list:
+                dsafadgfr.write('@RD /S /Q "'+fgasdfdartgdfa+'"\n')
+            dsafadgfr.write('ECHO "This script will now self-destruct. Please ignore the next error message"\n')
+            dsafadgfr.write('DEL "%~f0"')
+        os.startfile(str(Path(self.self_current_dir).parent)+r'\clean.bat')
         if self.check_latest_version():
             if messagebox.askyesno('Update Found','Found New Release from Github.\n'+self.latest_name+'\nWould you like to update now?'):
                 return True
