@@ -192,6 +192,7 @@ class Update_Manager:
                         self.SVM.make(name=Shortcut_Name)
                         if messagebox.askyesno("Update Sucess",'Files suceessfully places\nDelete previous directory?'):
                             with open(str(Path(go).parent)+r'\delete'+'.bat','w') as jk:
+                                jk.write('taskkill /f /pid '+str(os.getpid())+'\n')
                                 jk.write('@RD /S /Q "'+self.self_current_dir+'"\n')
                                 jk.write('ECHO "This script will now self-destruct. Please ignore the next error message"\n')
                                 jk.write('DEL "%~f0"')
@@ -235,7 +236,6 @@ class Update_Manager:
         return self.GC.get_file()
 
 def after_update(directory):
-    atexit.register(time.sleep,10)
     atexit.register(os.startfile,directory)
     
 if __name__ == "__main__":
