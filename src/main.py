@@ -6,7 +6,7 @@ class App(Frame):
     def __init__(self,master=None):
         super().__init__(master)
         self.master = master
-        self.master.geometry('270x200')
+        self.master.geometry('270x230')
         self.master.title('통합 프로그램')
         self.pack(fill='both',expand=1)
         self.run_update()
@@ -36,7 +36,7 @@ class App(Frame):
         os.startfile(r'pyth\today_program\today_program.exe')
     
     def run_update(self):
-        os.startfile(r'pyth\update_program\auto_update.exe')
+        os.startfile('auto_update.exe')
     
     def show_help(self):
         webbrowser.open('help.pdf')

@@ -226,7 +226,7 @@ class Update_Manager:
     def update_checker(self):
         self.check_my_version()
         if self.check_latest_version():
-            if messagebox.askyesno('Update Found','Found New Release from Github.\n Would you like to update now?'):
+            if messagebox.askyesno('Update Found','Found New Release from Github.\n'+self.latest_name+'\nWould you like to update now?'):
                 return True
         return False
     
