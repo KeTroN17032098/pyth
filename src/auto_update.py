@@ -250,7 +250,7 @@ class Update_Manager:
                 return True
         return False
     
-    def dowload_file(self):
+    def dowload_file(self,path):
         return self.GC.get_file()
 
 def after_update(directory):
