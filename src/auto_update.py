@@ -180,10 +180,12 @@ class Update_Manager:
         self.G_ID=Github_Id
         self.G_Repository=Github_Repository
         if self.update_checker():
-            pa=self.dowload_file()
+            pa=self.dowload_file(path=self.self_current_dir)
             if pa!='':
                 self.CFE=Compressed_File_Extractor(pa)
-                go=self.CFE.extract(dir=os.path.join(Path(self.self_current_dir).parent,self.latest_name))
+                if self.latest_name==self.self_current_dir.split('\\')[-1]:
+                    go=self.CFE.extract(dir=os.path.join(Path(self.self_current_dir).parent,self.latest_name+'_1'))
+                else:go=self.CFE.extract(dir=os.path.join(Path(self.self_current_dir).parent,self.latest_name))
                 if go!='':
                     self.DT=DataTransfer(prev_data=self.self_current_dir+r'\data',mode='dir')
                     laza=self.DT.transfer(dir_path=go,dirname='data')
