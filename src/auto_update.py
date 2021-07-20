@@ -49,6 +49,7 @@ class Github_Check:
             soup=BeautifulSoup(html,'html.parser')
             a=soup.find('div',attrs={'class':'d-flex flex-justify-between flex-items-center py-1 py-md-2 Box-body px-2'}).find('a')['href']
             file_link='http://github.com'+a
+            print('Downloading file : '+a.split('\\')[-1])
             downloaded_file_path=request.urlretrieve(file_link,filename=path+'\\'+name+'.'+file_link.split('.')[-1])[0]
             return downloaded_file_path
         return ""
@@ -88,12 +89,15 @@ class Compressed_File_Extractor:
                 except OSError:
                     print('Error: Unable to Make '+dir)
                     return ""
+        print("Extracting :"+self.target_path+' on '+dir)
         if self.target_type=='zip':
             zipfile.ZipFile(self.target_path).extractall(dir)
+            print('Extracting Complete')
             return dir
         elif self.target_type=='7z':
             with py7zr.SevenZipFile(self.target_path,mode='r') as ar:
                 ar.extractall(dir)
+                print('Extracting Complete')
                 return dir
         else:
             print('Invalid File Type')
@@ -121,6 +125,7 @@ class DataTransfer:
         if dirname=="":pass
         else:dir_path=dir_path+'\\'+dirname
         if self.__prev_data_path__!="":
+            print('Transfering '+self.__prev_data_path__+' to '+dir_path)
             try:
                 if os.path.isdir(dir_path):pass
                 else:os.makedirs(dir_path)
@@ -133,6 +138,7 @@ class DataTransfer:
         elif self.__prev_dir_path__!="":
             try:
                 shutil.copytree(self.__prev_dir_path__,os.path.abspath(dir_path))
+                print('Transfering '+self.__prev_data_path__+' to '+dir_path)
                 return dir_path
             except shutil.SameFileError:
                 print('start and end is same')
@@ -153,6 +159,7 @@ class ShortCut_Maker:
         self.target = target
     
     def make(self,name='LAK'):
+        print('Making Shortcut on Desktop....')
         desktop = winshell.desktop()
         #desktop = r"path to where you wanna put your .lnk file"
         path = os.path.join(desktop, name+'.lnk')
@@ -162,7 +169,7 @@ class ShortCut_Maker:
         shortcut.IconLocation = self.target
         shortcut.WorkingDirectory = os.path.dirname(self.target)
         shortcut.save()
-        
+        print('Shortcut Successfully Saved')
 class Update_Manager:
     def __init__(self,version_file='version.txt',Github_Id='KeTroN17032098',Github_Repository='pyth',Shortcut_Name='매니지먼트 툴',Shorcut_Target='main.exe'):
         self.tk=Tk()
@@ -180,6 +187,7 @@ class Update_Manager:
         self.G_ID=Github_Id
         self.G_Repository=Github_Repository
         if self.update_checker():
+            print('Beginning Update')
             pa=self.dowload_file(path=self.self_current_dir)
             if pa!='':
                 self.CFE=Compressed_File_Extractor(pa)

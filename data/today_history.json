@@ -1631,6 +1631,48 @@
             "time": "2021-07-20 02:10:05 PM",
             "type": "init",
             "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 02:54:34 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:02:31 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:03:00 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:03:39 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:04:15 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:06:08 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:10:23 PM",
+            "type": "init",
+            "isSucess": 1
         }
     ],
     "push": [
@@ -12709,6 +12751,231 @@
         {
             "user": "user",
             "time": "2021-07-20 02:10:33 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 02:54:34 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 02:54:47 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-07"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 02:54:48 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-13"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 02:54:48 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-19"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 02:54:48 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:02:31 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:02:33 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-07"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:02:33 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-13"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:02:34 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-19"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:02:34 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:02:35 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:03:00 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:03:02 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-07"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:03:03 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-13"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:03:03 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-19"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:03:03 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:03:39 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:04:15 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:06:09 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:10:24 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:10:27 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-07"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:10:27 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-13"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:10:27 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-19"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:10:27 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-20 03:10:31 PM",
             "type": "show",
             "isSucess": 1,
             "dates": [
