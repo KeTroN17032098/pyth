@@ -1,41 +1,53 @@
 {
-    "cumulative": 49,
+    "cumulative": 27,
     "typecode": "TR",
     "\ub178\ud2b8\ubd81": [
         {
-            "date": "2021-07-14",
-            "where": "\ub178\ud2b8\ubd81",
-            "\ub0a8\uc131": 11,
-            "\uc5ec\uc131": 3
-        },
-        {
-            "date": "2021-07-15",
-            "where": "\ub178\ud2b8\ubd81",
-            "\ub0a8\uc131": 6,
-            "\uc5ec\uc131": 2
-        },
-        {
-            "date": "2021-07-16",
+            "date": "2021-07-20",
             "where": "\ub178\ud2b8\ubd81",
             "\ub0a8\uc131": 2,
-            "\uc5ec\uc131": 2
+            "\uc5ec\uc131": 0
+        },
+        {
+            "date": "2021-07-19",
+            "where": "\ub178\ud2b8\ubd81",
+            "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
+        },
+        {
+            "date": "2021-07-07",
+            "where": "\ub178\ud2b8\ubd81",
+            "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
+        },
+        {
+            "date": "2021-07-13",
+            "where": "\ub178\ud2b8\ubd81",
+            "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
         }
     ],
     "\ud504\ub9b0\ud2b8": [
         {
-            "date": "2021-07-14",
+            "date": "2021-07-20",
             "where": "\ud504\ub9b0\ud2b8",
-            "\ub0a8\uc131": 3,
-            "\uc5ec\uc131": 4
-        },
-        {
-            "date": "2021-07-15",
-            "where": "\ud504\ub9b0\ud2b8",
-            "\ub0a8\uc131": 5,
+            "\ub0a8\uc131": 0,
             "\uc5ec\uc131": 3
         },
         {
-            "date": "2021-07-16",
+            "date": "2021-07-19",
+            "where": "\ud504\ub9b0\ud2b8",
+            "\ub0a8\uc131": 3,
+            "\uc5ec\uc131": 2
+        },
+        {
+            "date": "2021-07-07",
+            "where": "\ud504\ub9b0\ud2b8",
+            "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
+        },
+        {
+            "date": "2021-07-13",
             "where": "\ud504\ub9b0\ud2b8",
             "\ub0a8\uc131": 0,
             "\uc5ec\uc131": 0
@@ -43,21 +55,27 @@
     ],
     "\uad00\ub0b4\uc5f4\ub78c": [
         {
-            "date": "2021-07-14",
-            "where": "\uad00\ub0b4\uc5f4\ub78c",
-            "\ub0a8\uc131": 2,
-            "\uc5ec\uc131": 4
-        },
-        {
-            "date": "2021-07-15",
-            "where": "\uad00\ub0b4\uc5f4\ub78c",
-            "\ub0a8\uc131": 1,
-            "\uc5ec\uc131": 2
-        },
-        {
-            "date": "2021-07-16",
+            "date": "2021-07-20",
             "where": "\uad00\ub0b4\uc5f4\ub78c",
             "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
+        },
+        {
+            "date": "2021-07-19",
+            "where": "\uad00\ub0b4\uc5f4\ub78c",
+            "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
+        },
+        {
+            "date": "2021-07-07",
+            "where": "\uad00\ub0b4\uc5f4\ub78c",
+            "\ub0a8\uc131": 0,
+            "\uc5ec\uc131": 0
+        },
+        {
+            "date": "2021-07-13",
+            "where": "\uad00\ub0b4\uc5f4\ub78c",
+            "\ub0a8\uc131": 17,
             "\uc5ec\uc131": 0
         }
     ]

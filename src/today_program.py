@@ -23,7 +23,9 @@ import shutil
 from openpyxl.styles.borders import Border, Side
 import webbrowser
 import sys
-
+import schedule
+import winshell
+from functools import partial
 
 
 
@@ -151,8 +153,10 @@ class Json_Data():
         self.save_history()
         return TRUE
 
-    def check_date(self):#오늘 날짜 멤버 체크 및 생성
-        today=today_date_str()
+    def check_date(self,date_w=today_date_str()):#오늘 날짜 멤버 체크 및 생성
+        today=date_w
+        print('check_date')
+        print(today)
         self.__Today_Data__=[]
         for where in self.__WhereName__:
             for item in self.data[where]:
@@ -170,17 +174,17 @@ class Json_Data():
             print(tmp)
             for place in tmp:
                 kal={
-                    "date":today_date_str(),
+                    "date":today,
                     "where":place
                 }
                 for gender in self.__Gender__:
                     kal[gender]=0
                 self.data[place].append(kal)
-            self.check_date()
+            self.check_date(date_w=today)
         elif len(self.__WhereName__)==len(self.__Today_Data__):
             self.save_data()
             return
-        else: self.check_date()
+        else: self.check_date(date_w=today)
 
     def show_data(self,start=today_date_str(),end=today_date_str(),mode=FALSE):#특정 기간의 데이터 검색
         end_date=datetime.datetime.strptime(end, '%Y-%m-%d')
@@ -311,6 +315,8 @@ class Json_Data():
                 if date in selected_dates:
                     dates.append(date)
         else:dates=datesd
+        DATE=sorted(dates)
+        dates=DATE
         result={}
         columns_d=["Date"]
         columns_name=[]
@@ -532,7 +538,7 @@ class MyDateEntry(DateEntry):
                     text='Today: %s' % datetime.datetime.today().strftime('%x')).pack(fill='x')
         
 class Application(Frame):
-    def __init__(self,master=None,savefile=None,image_sets=[]):
+    def __init__(self,master=None,savefile=None,image_sets=[],save_time='18:00:00'):
         super().__init__(master)
         self.master = master
         self.savefile = savefile
@@ -544,8 +550,8 @@ class Application(Frame):
         self.create_menu()
         self.create_widgets()
         master.protocol("WM_DELETE_WINDOW",self.quit_all)#X버튼을 눌러서 종료시
-        self.UpdateTexts()
-
+        self.UpdateTexts(save_time)
+        
     def window_set(self):
         self.master.iconbitmap(default=icon_path)
         self.master.title("전자정보실 "+today_date_str()+"일 기록")
@@ -567,6 +573,9 @@ class Application(Frame):
         self.menu2.add_command(label='데이터 다른 이름으로 저장',command=self.saveasjson_data)
         self.menu2.add_command(label='히스토리 다른 이름으로 저장',command=self.saveasjson_history)
         self.menubar.add_cascade(label="세이브/로드",menu=self.menu2)
+        self.menu4=Menu(self.menubar,tearoff=0)
+        self.menu4.add_command(label="다른 날짜 수정",command=self.edit_other_date)
+        self.menubar.add_cascade(label='수정',menu=self.menu4)
         self.menu3=Menu(self.menubar,tearoff=0)
         self.menu3.add_command(label="설명서",command=self.show_help)
         self.menu3.add_command(label="Copyrights",command=self.show_copyright)
@@ -649,11 +658,16 @@ class Application(Frame):
         self.ViewButton=Button(self.ViewButtonField,text="전체/오늘 보기 변경",command=self.changemode)
         self.ViewButton.pack()
 
-    def updateDateEntry(self):
+    def updateDateEntry(self,save_time):
         try:
             self.DateEntry.delete(0,END)
             now=now_time_str().center(21," ")
             self.DateEntry.insert(END,now)
+            hou=datetime.datetime.strptime(now_time_str(),'%Y-%m-%d %I:%M:%S %p').hour
+            minu=datetime.datetime.strptime(now_time_str(),'%Y-%m-%d %I:%M:%S %p').minute
+            sec=datetime.datetime.strptime(now_time_str(),'%Y-%m-%d %I:%M:%S %p').second
+            if save_time.split(':')==[str(hou),str(minu),str(sec)]:
+                self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=TRUE,excel_path=os.path.join(winshell.desktop(),today_date_str()+'_exit_time.xlsx'))
         except RuntimeError:
             print("런타임 에러 :쓰레드 "+threading.current_thread().name+" 종료")
             return
@@ -661,7 +675,7 @@ class Application(Frame):
             print("TCL 에러 :쓰레드 "+threading.current_thread().name+" 종료")
             return
         
-        threading.Timer(1,self.updateDateEntry).start()
+        threading.Timer(1,self.updateDateEntry,args=[save_time]).start()
         
     def changemode(self):
         if self.viewmode:
@@ -671,9 +685,9 @@ class Application(Frame):
         self.Table.Table.clear_table()
         self.Table.Table.insert_data_from_json(json_data=self.savefile,allmode=self.viewmode)
 
-    def UpdateTexts(self):
+    def UpdateTexts(self,save_time):
         print('a')
-        self.updateDateEntry()
+        self.updateDateEntry(save_time)
         self.Table.Table.insert_data_from_json(json_data=self.savefile,allmode=self.viewmode)
 
     def saveasexcel_today(self):
@@ -793,6 +807,103 @@ class Application(Frame):
             except shutil.SameFileError:
                 messagebox.showerror("파일 오류","현재 저장 파일과 동일합니다.")
                 return
+            
+    def edit_other_date(self):
+        subwindow=Toplevel(self.master)
+        subwindow.geometry('300x80')
+        subwindow.resizable(False,False)
+        subwindow.title('수정')
+        slb1=Label(subwindow)
+        slb1.pack()
+        labels1=Label(slb1,text="날짜 :")
+        dates1=DateEntry(slb1,selectbackground='gray80',
+                 selectforeground='black',
+                 normalbackground='white',
+                 normalforeground='black',
+                 background='gray90',
+                 foreground='black',
+                 bordercolor='gray90',
+                 othermonthforeground='gray50',
+                 othermonthbackground='white',
+                 othermonthweforeground='gray50',
+                 othermonthwebackground='white',
+                 weekendbackground='white',
+                 weekendforeground='black',
+                 headersbackground='white',
+                 headersforeground='gray70')
+        labels2=Label(slb1,text="대상 :")
+        vbbs2=[]
+        for pls in self.savefile.__WhereName__:
+            for gen in self.savefile.__Gender__:
+                vbbs2.append(pls+' '+gen)
+        cbbs2=ttk.Combobox(slb1,values=vbbs2)
+        def edit_selected_member():
+            member=cbbs2.get()
+            date=dates1.get_date()
+            if member =='':
+                messagebox.showerror('Error','Selected member in combobox')
+                subwindow.lift()
+                return
+            elif date>datetime.datetime.now().date():
+                messagebox.showerror('Error','You cannot select a date is sooner than today')
+                subwindow.lift()
+                return
+            prev_date=date.strftime("%Y-%m-%d")
+            prev_gen=member.split(" ")[1]
+            prev_plc=member.split(" ")[0]
+            subwindow1=Toplevel(self.master)
+            tmp=self.savefile.show_data(prev_date,prev_date)
+            if tmp==[]:
+                j=messagebox.askyesno('No Data in certain date.','Nothing saved in selected Date.\nMake Data in certain date?')
+                if j:
+                    self.savefile.check_date(date_w=prev_date)
+                    tmp=self.savefile.show_data(prev_date,prev_date)
+                    print(tmp)
+                    subwindow1.lift()
+                else:
+                    subwindow1.destroy()
+                    subwindow.lift()
+                    return
+            subwindow.destroy()
+            prev_value=[cant for cant in tmp if cant['where']==prev_plc][0][prev_gen]
+            subwindow1.geometry('300x400')
+            subwindow1.resizable(False,False)
+            subwindow1.title(date.strftime("%Y-%m-%d")+' '+member+' 수정')
+            slb1=Label(subwindow1)
+            slb1.pack()
+            lb=Label(slb1,text=date.strftime("%Y-%m-%d")+' '+member)
+            lb.pack()
+            ent=Entry(slb1)
+            ent.insert(END,str(prev_value))
+            ent.pack()
+            def edit_data():
+                try:
+                    print(ent.get())
+                    fo=int(ent.get())
+                    print(fo)
+                    if fo>=0:
+                        if messagebox.askokcancel('Edit Data','Change '+prev_date+' '+prev_plc+' '+prev_gen+"'s count\n"+str(prev_value)+'\ninto\n'+str(fo)):
+                            self.savefile.push_data(date=prev_date,gender=prev_gen,where=prev_plc,count=fo-prev_value)
+                            self.updatetable(EventType.ButtonRelease)
+                            self.lift()
+                            subwindow1.destroy()
+                    else:
+                        messagebox.showerror('Error','Input Numbers without -')
+                        subwindow1.lift()
+                except ValueError:
+                    messagebox.showerror('Error','Input Numbers')
+                    subwindow1.lift()
+            btn=Button(slb1,text='수정',command=edit_data)
+            btn.pack()
+        btns1=Button(slb1,text="선택",command=edit_selected_member)
+        labels1.grid(row=0,column=0)
+        dates1.grid(row=0,column=1)
+        labels2.grid(row=1,column=0)
+        cbbs2.grid(row=1,column=1)
+        btns1.grid(row=2,column=1)
+    
+   
+        
     
     def show_help(self):
         webbrowser.open('help.pdf')
