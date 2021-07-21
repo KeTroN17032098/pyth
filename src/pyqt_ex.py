@@ -1,29 +1,43 @@
 from PyQt5.QtCore import *
-from PyQt5.QtGui import QTextBlock
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import sys
 import operator
 
 
-class MyApp(QWidget):
+class MyApp(QMainWindow):
     
     def __init__(self):
         super().__init__()
         self.initUI()
 
     def initUI(self):
-        lcd = QLCDNumber(self)
-        dial = QLineEdit(self)
-
-        vbox = QVBoxLayout()
-        vbox.addWidget(lcd)
-        vbox.addWidget(dial)
-        self.setLayout(vbox)
-
-        dial.in.connect(lcd.display)
+        self.exitaction=QAction(QIcon('logo.ico'),'Exit',self)
+        self.exitaction.setShortcut('Crtl+Q')
+        self.exitaction.setStatusTip('Exit Application')
+        self.exitaction.triggered.connect(QApplication.quit)
+        
+        self.menuBar().setNativeMenuBar(False)
+        self.filemenu=self.menuBar().addMenu('&File')
+        self.filemenu.setStatusTip('Look for File Menu')
+        self.filemenu.addAction(self.exitaction)
+        
+        btn=QPushButton('Quit',self)
+        btn.move(200,150)
+        btn.resize(btn.sizeHint())
+        btn.clicked.connect(QApplication.instance().quit)
+        QToolTip.setFont(QFont('SansSerif', 15))
+        btn.setToolTip('Hello')
+        
+        self.btmprbar=QProgressBar(self)
+        self.statusBar().setStyleSheet('border :1px solid;')
+        self.statusBar().addPermanentWidget(self.btmprbar)
+        self.statusBar().showMessage('Ready')
 
         self.setWindowTitle('Signal and Slot')
-        self.setGeometry(300, 300, 200, 200)
+        self.move(0,0)
+        self.resize(400,300)
+        self.setWindowIcon(QIcon('checkbox/logo.png'))
         self.show()
 
 

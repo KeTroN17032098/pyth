@@ -23,7 +23,6 @@ import shutil
 from openpyxl.styles.borders import Border, Side
 import webbrowser
 import sys
-import schedule
 import winshell
 from functools import partial
 
