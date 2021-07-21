@@ -24,7 +24,7 @@ from openpyxl.styles.borders import Border, Side
 import webbrowser
 import sys
 import winshell
-from functools import partial
+import schedule
 
 
 
@@ -55,6 +55,7 @@ def imageModifier(FILE_PATH,x,y):#아미지 사이즈 재설정 함수
     resized_img1=ImageTk.PhotoImage(img1)
     return resized_img1
 
+    
 class Json_Data():
     def __init__(self,FilePath=today_file_path,HistoryPath=history_file_path,whereList=["노트북",'프린트','관내열람'],genderList=['남성','여성']):#생성자
         self.FilePath=FilePath
@@ -537,7 +538,7 @@ class MyDateEntry(DateEntry):
                     text='Today: %s' % datetime.datetime.today().strftime('%x')).pack(fill='x')
         
 class Application(Frame):
-    def __init__(self,master=None,savefile=None,image_sets=[],save_time='18:00:00'):
+    def __init__(self,master=None,savefile=None,image_sets=[],save_time='18:00'):
         super().__init__(master)
         self.master = master
         self.savefile = savefile
@@ -550,6 +551,7 @@ class Application(Frame):
         self.create_widgets()
         master.protocol("WM_DELETE_WINDOW",self.quit_all)#X버튼을 눌러서 종료시
         self.UpdateTexts(save_time)
+        
         
     def window_set(self):
         self.master.iconbitmap(default=icon_path)
@@ -657,16 +659,12 @@ class Application(Frame):
         self.ViewButton=Button(self.ViewButtonField,text="전체/오늘 보기 변경",command=self.changemode)
         self.ViewButton.pack()
 
-    def updateDateEntry(self,save_time):
+    def updateDateEntry(self):
         try:
             self.DateEntry.delete(0,END)
             now=now_time_str().center(21," ")
             self.DateEntry.insert(END,now)
-            hou=datetime.datetime.strptime(now_time_str(),'%Y-%m-%d %I:%M:%S %p').hour
-            minu=datetime.datetime.strptime(now_time_str(),'%Y-%m-%d %I:%M:%S %p').minute
-            sec=datetime.datetime.strptime(now_time_str(),'%Y-%m-%d %I:%M:%S %p').second
-            if save_time.split(':')==[str(hou),str(minu),str(sec)]:
-                self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=TRUE,excel_path=os.path.join(winshell.desktop(),today_date_str()+'_exit_time.xlsx'))
+            schedule.run_pending()
         except RuntimeError:
             print("런타임 에러 :쓰레드 "+threading.current_thread().name+" 종료")
             return
@@ -674,8 +672,11 @@ class Application(Frame):
             print("TCL 에러 :쓰레드 "+threading.current_thread().name+" 종료")
             return
         
-        threading.Timer(1,self.updateDateEntry,args=[save_time]).start()
-        
+        threading.Timer(1,self.updateDateEntry).start()
+      
+    def save_today_data(self):
+        self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=TRUE,excel_path=os.path.join(winshell.desktop(),today_date_str()+'_exit_time.xlsx'))  
+      
     def changemode(self):
         if self.viewmode:
             self.viewmode=FALSE
@@ -686,7 +687,8 @@ class Application(Frame):
 
     def UpdateTexts(self,save_time):
         print('a')
-        self.updateDateEntry(save_time)
+        schedule.every().day.at(save_time).do(self.save_today_data)
+        self.updateDateEntry()
         self.Table.Table.insert_data_from_json(json_data=self.savefile,allmode=self.viewmode)
 
     def saveasexcel_today(self):
@@ -901,9 +903,6 @@ class Application(Frame):
         cbbs2.grid(row=1,column=1)
         btns1.grid(row=2,column=1)
     
-   
-        
-    
     def show_help(self):
         webbrowser.open('help.pdf')
         
@@ -920,7 +919,7 @@ if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록
     while True:
         root=Tk()
         tr=Json_Data()
-        app=Application(master=root,savefile=tr,image_sets=images_path)
+        app=Application(master=root,savefile=tr,image_sets=images_path,save_time='17:50')
         app.mainloop()
         time.sleep(5)
         if FILE_CLOSE:
