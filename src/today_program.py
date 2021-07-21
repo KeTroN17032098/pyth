@@ -30,6 +30,7 @@ import schedule
 
 today_file_path='data/today_result.json'
 history_file_path='data/today_history.json'
+setting_file_path='data/setting.json'
 icon_path='checkbox/logo.ico'
 excel_path='data_excel.xlsx'
 history_excel_path='history_excel.xlsx'
@@ -57,14 +58,26 @@ def imageModifier(FILE_PATH,x,y):#아미지 사이즈 재설정 함수
 
     
 class Json_Data():
-    def __init__(self,FilePath=today_file_path,HistoryPath=history_file_path,whereList=["노트북",'프린트','관내열람'],genderList=['남성','여성']):#생성자
-        self.FilePath=FilePath
-        self.HistoryPath=HistoryPath
-        self.__WhereName__=whereList
-        self.__Gender__=genderList
+    def __init__(
+        self,FilePath=today_file_path,
+        HistoryPath=history_file_path,
+        SettingPath=setting_file_path,
+        whereList=["노트북",'프린트','관내열람'],
+        genderList=['남성','여성'],
+        imagelist=images_path,
+        savetime='17:50',
+        savedir=winshell.desktop()):#생성자
+        self.SettingPath=SettingPath
+        self.settings={}
+        
+        self.load_settings()
+        self.check_setting(FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir)
+        
+
         self.__Today_Data__=[]
         self.data={}
         self.history={}
+
         if self.check_save():
             with open(self.FilePath,"r") as f:
                 self.data = json.load(f)
@@ -112,7 +125,58 @@ class Json_Data():
     def save_data(self):#데이터 저장
         with open(self.FilePath,'w') as fk:
             json.dump(self.data, fk,indent=4)
+    
+    def load_settings(self):
+        if os.path.isfile(self.SettingPath):
+            with open(self.SettingPath,'r') as stpr:
+                self.settings=json.load(stpr)
             
+    def check_setting(self,FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir):
+        if self.settings=={}:
+            self.settings['FilePath']=[]
+            self.settings['FilePath'].append({
+                'path':FilePath,
+                'type':'Data'
+            })
+            self.settings['FilePath'].append({
+                'path':HistoryPath,
+                'type':'History'
+            })
+            self.settings['NameList']=[]
+            self.settings['NameList'].append({
+                'list':whereList,
+                'type':'Place'
+            })
+            self.settings['NameList'].append({
+                'list':genderList,
+                'type':'Gender'
+            })
+            self.settings['ImagePath']=imagelist
+            self.settings['DailySave']={
+                'time':savetime,
+                'dir':os.path.abspath(savedir)
+            }
+            self.save_settings()
+            self.check_setting(FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir)
+        else:
+            if sorted(list(self.settings.keys()))!=sorted(['FilePath','NameList','ImagePath','DailySave']):
+                self.settings={}
+                self.check_setting(FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir)
+            else:
+                for d in self.settings['FilePath']:
+                    if d['type']=='Data':self.FilePath=d['path']
+                    elif d['type']=='History':self.HistoryPath=d['path']
+                for f in self.settings['NameList']:
+                    if f['type']=='Place': self.__WhereName__=f['list']
+                    elif f['type']=='Gender':self.__Gender__=f['list']
+                self.imagelist=self.settings['ImagePath']
+                self.savetime=self.settings['DailySave']['time']
+                self.savedir=self.settings['DailySave']['dir']
+    def save_settings(self):
+        with open(self.SettingPath,'w') as kosk:
+            json.dump(self.settings,kosk, indent=4)
+    
+    
     def save_history(self):#내역 저장
         with open(self.HistoryPath,'w') as hk:
             json.dump(self.history,hk,indent=4)
@@ -538,7 +602,7 @@ class MyDateEntry(DateEntry):
                     text='Today: %s' % datetime.datetime.today().strftime('%x')).pack(fill='x')
         
 class Application(Frame):
-    def __init__(self,master=None,savefile=None,image_sets=[],save_time='18:00'):
+    def __init__(self,master=None,savefile=None,image_sets=[],save_time='18:00',save_path=''):
         super().__init__(master)
         self.master = master
         self.savefile = savefile
@@ -550,7 +614,7 @@ class Application(Frame):
         self.create_menu()
         self.create_widgets()
         master.protocol("WM_DELETE_WINDOW",self.quit_all)#X버튼을 눌러서 종료시
-        self.UpdateTexts(save_time)
+        self.UpdateTexts(save_time,save_path)
         
         
     def window_set(self):
@@ -674,9 +738,9 @@ class Application(Frame):
         
         threading.Timer(1,self.updateDateEntry).start()
       
-    def save_today_data(self):
-        self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=TRUE,excel_path=os.path.join(winshell.desktop(),today_date_str()+'_exit_time.xlsx'))  
-      
+    def save_today_data(self,save_path):
+        if save_path=="":self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=TRUE,excel_path=os.path.join(winshell.desktop(),today_date_str()+'_exit_time.xlsx'))  
+        else:self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=TRUE,excel_path=os.path.join(os.path.abspath(save_path),today_date_str()+'_exit_time.xlsx')) 
     def changemode(self):
         if self.viewmode:
             self.viewmode=FALSE
@@ -685,9 +749,10 @@ class Application(Frame):
         self.Table.Table.clear_table()
         self.Table.Table.insert_data_from_json(json_data=self.savefile,allmode=self.viewmode)
 
-    def UpdateTexts(self,save_time):
+
+    def UpdateTexts(self,save_time,save_path):
         print('a')
-        schedule.every().day.at(save_time).do(self.save_today_data)
+        schedule.every().day.at(save_time).do(self.save_today_data,(save_path))
         self.updateDateEntry()
         self.Table.Table.insert_data_from_json(json_data=self.savefile,allmode=self.viewmode)
 
@@ -903,6 +968,16 @@ class Application(Frame):
         cbbs2.grid(row=1,column=1)
         btns1.grid(row=2,column=1)
     
+    def change_settings(self,**kwargs):
+        for k,v in kwargs.items():
+            if 'Save_Time' in kwargs.keys():
+                self.savefile.settings['DailySave']['time'] = v
+            elif 'Save_dir' in kwargs.keys() and os.path.isdir(v):
+                self.savefile.settings['DailySave']['dir']=v
+        self.savefile.save_settings()
+        del self.savefile
+        self.master.destroy()
+    
     def show_help(self):
         webbrowser.open('help.pdf')
         
@@ -918,8 +993,8 @@ class Application(Frame):
 if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
     while True:
         root=Tk()
-        tr=Json_Data()
-        app=Application(master=root,savefile=tr,image_sets=images_path,save_time='17:50')
+        tr=Json_Data(savetime='16:25',savedir='data')
+        app=Application(master=root,savefile=tr,image_sets=tr.imagelist,save_time=tr.savetime,save_path=tr.savedir)
         app.mainloop()
         time.sleep(5)
         if FILE_CLOSE:

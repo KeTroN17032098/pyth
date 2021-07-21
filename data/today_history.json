@@ -1745,6 +1745,48 @@
             "time": "2021-07-21 02:54:48 PM",
             "type": "init",
             "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 03:11:36 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 03:12:52 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 03:51:20 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:00:42 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:01:11 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:01:55 PM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:24:56 PM",
+            "type": "init",
+            "isSucess": 1
         }
     ],
     "push": [
@@ -13201,6 +13243,114 @@
         {
             "user": "user",
             "time": "2021-07-21 02:54:49 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 03:11:36 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 03:12:00 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 03:12:52 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 03:13:00 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 03:51:20 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 03:52:00 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:00:42 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:01:11 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:01:55 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:02:00 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:24:56 PM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "user",
+            "time": "2021-07-21 04:25:00 PM",
             "type": "show",
             "isSucess": 1,
             "dates": [
