@@ -212,7 +212,7 @@ class Json_Data():
                 self.settings['DailySave']['dir']=self.savedir
                 self.save_settings()
                 ischanged=True
-            if k=='icon_path' and os.path.isfile(v):
+            if k=='iconpath' and os.path.isfile(v):
                 print('change icon path')
                 self.icon_path=v
                 self.settings['IconPath']=self.icon_path
@@ -237,7 +237,7 @@ class Json_Data():
                 self.settings['ImagePath']=self.imagelist
                 self.save_settings()
                 ischanged=True
-            if k=='wherevame' and type(v)==list:
+            if k=='wherelist' and type(v)==list:
                 for vd in v:
                     if type(vd) is not str:
                         v.remove(vd)
@@ -247,7 +247,7 @@ class Json_Data():
                     if f['type']=='Place': f['list']=self.__WhereName__
                 self.save_settings()
                 ischanged=True
-            if k=='gender' and type(v)==list:
+            if k=='genderlist' and type(v)==list:
                 for vd in v:
                     if type(vd) is not str:
                         v.remove(vd)
@@ -608,7 +608,7 @@ class Json_Data():
             check_tmp={}
             with open(path,'r') as check:
                 check_tmp=json.load(check)
-            if sorted(list(check_tmp.keys()))==sorted(self.__WhereName__+['cumulative','typecode']):
+            if sorted(list(check_tmp.keys()))==sorted(self.__WhereName__+['cumulative','typecode']) and sorted(list(check_tmp[self.__WhereName__[0]][0].keys()))==sorted(list(self.__Gender__+['date','where'])):
                 isValid=TRUE
                 print("세이브 파일 무결성 확인")
         else:
@@ -629,12 +629,14 @@ class Json_Data():
             pass
         return isValid
 
-    def quit(self):
+    def quit(self,mode=TRUE):
         global FILE_CLOSE
-        FILE_CLOSE=TRUE
+        FILE_CLOSE=mode
         print("자동저장 후 종료")
         self.save_data()
         self.save_history()
+        self.save_settings()
+        print('저장 완료')
         del self
 
 
@@ -1094,15 +1096,6 @@ class Application(Frame):
         cbbs2.grid(row=1,column=1)
         btns1.grid(row=2,column=1)
         
-    def change_settings(self,**kwargs):
-        for k,v in kwargs.items():
-            if 'Save_Time' in kwargs.keys():
-                self.savefile.settings['DailySave']['time'] = v
-            elif 'Save_dir' in kwargs.keys() and os.path.isdir(v):
-                self.savefile.settings['DailySave']['dir']=v
-        self.savefile.save_settings()
-        del self.savefile
-        self.master.destroy()
     
     def show_help(self):
         webbrowser.open('help.pdf')
@@ -1111,17 +1104,55 @@ class Application(Frame):
         webbrowser.open('copyright.pdf')    
     
     def edit_settings(self):
-        self.FFES={}
+        FFES={}
         sw=Toplevel(self.master)
-        sw.geometry('300x120')
+        sw.geometry('350x300')
         sw.resizable(False,False)
         sw.title('Settings')
-        self.FFES['filepath']=self.FileFindEntry(sw,type_set='filepath')
-        self.FFES['historypath']=self.FileFindEntry(sw,type_set='historypath')
-    
-    def FileFindEntry(self,master=None,start_dir=winshell.desktop(),file_type=[("json file(.json)",".json")],type_set=''):
+        FFES['filepath']=self.FileFindEntry(sw,type_set='filepath')
+        FFES['historypath']=self.FileFindEntry(sw,type_set='historypath')
+        FFES['iconpath']=self.FileFindEntry(sw,type_set='iconpath')
+        FFES['savedir']=self.FileFindEntry(sw,type_set='savedir',mode=True)
+        FFES['wherelist']=self.ListNameEntry(sw,type_set='wherelist')
+        FFES['genderlist']=self.ListNameEntry(sw,type_set='genderlist')
+        FFES['imagelist']=self.FilesFindScrolledText(sw,type_set='imagelist',file_type=[('PNG file(.png)','.png')])
+        FFES['savetime']=self.TimeSetEntry(sw,type_set='savetime')
+        btnr=Button(sw,text='Reset')
+        def reset(event):
+            if messagebox.askokcancel('Reset Settings','Your settings and your savefile will reset itself.\nAre you sure?'):
+                self.savefile.settings={}
+                self.savefile.quit(mode=False)
+                self.master.destroy()
+            else:return
+        btnr.bind('<ButtonRelease-1>',reset)
+        btnr.pack()
+        btnk=Button(sw,text='Save')
+        def change_set(event):
+            if messagebox.askokcancel('Change Settings','Your savefile will reset itself.\nYour Setting will be changed.\nAre you sure?'):
+                keys=FFES.keys()
+                cans={}
+                for key in keys:
+                    if key!='imagelist':
+                        lot=FFES[key]['entry'].get()
+                        if key=='wherelist' or key =='genderlist':cans[key]=lot.split(',')
+                        else:cans[key]=lot
+                    else:cans[key]=FFES[key]['entry'].get('1.0',END).splitlines()
+                self.savefile.change_settings(**cans)
+                self.savefile.quit(mode=False)
+                self.master.destroy()
+        btnk.bind('<ButtonRelease-1>',change_set)
+        btnk.pack()
+        
+    def FileFindEntry(self,master=None,start_dir=winshell.desktop(),file_type=[("json file(.json)",".json")],type_set='',mode=False):
         def finder(event):
             k=askopenfilename(title="경로 지정",filetypes=file_type,initialdir=start_dir)
+            if k==None or k=="":return
+            entry.delete(0,END)
+            entry.insert(0,k)
+            master.lift()
+        def finder_d(event):
+            k=askdirectory(title="경로 지정",initialdir=start_dir)
+            if k==None or k=="":return
             entry.delete(0,END)
             entry.insert(0,k)
             master.lift()
@@ -1139,12 +1170,82 @@ class Application(Frame):
             FFE['entry']=entry
             entry.grid(row=0,column=1)
             btn=Button(frame,text='Change')
+            if mode:btn.bind('<ButtonRelease-1>',finder_d)
+            else:btn.bind('<ButtonRelease-1>',finder)
+            btn.grid(row=0,column=2)
+            FFE['button']=btn
+            FFE['type']=type_set
+        return FFE
+    
+    def ListNameEntry(self,master=None,type_set=''):
+        FFE={}
+        if master!=None:
+            frame=Frame(master)
+            frame.pack()
+            FFE['frame']=frame
+            label=Label(frame,text=type_set.upper()+' : ')
+            label.grid(row=0,column=0)
+            FFE['label']=label
+            entry=Entry(frame)
+            tmps=''
+            tmp=self.savefile.show_settings(type_set)[type_set]
+            for ak in tmp:
+               tmps+=','
+               tmps+=ak
+            tmps=tmps[1:]
+            entry.insert(0,tmps) 
+            FFE['entry']=entry
+            entry.grid(row=0,column=1)
+            FFE['type']=type_set
+        return FFE
+    
+    def FilesFindScrolledText(self,master=None,start_dir=winshell.desktop(),file_type=[("json file(.json)",".json")],type_set=''):
+        def finder(event):
+            k=askopenfilenames(title="경로 지정",filetypes=file_type,initialdir=start_dir)
+            if k==None or k==[""]:return
+            entry.delete('1.0',END)
+            for pt in k:
+                entry.insert(END,pt+'\n')
+            master.lift()
+        FFE={}  
+        if master!=None:
+            frame=Frame(master)
+            frame.pack()
+            FFE['frame']=frame
+            label=Label(frame,text=type_set.upper()+' : ')
+            label.grid(row=0,column=0)
+            FFE['label']=label
+            entry=scrolledtext.ScrolledText(frame,height=7,width=25)
+            tmp=self.savefile.show_settings(type_set)[type_set]
+            for aks in tmp:
+                entry.insert(END,aks+'\n')
+            entry.bind("<Key>",lambda e: ctrlEvent(e))
+            FFE['entry']=entry
+            entry.grid(row=0,column=1)
+            btn=Button(frame,text='Change')
             btn.bind('<ButtonRelease-1>',finder)
             btn.grid(row=0,column=2)
             FFE['button']=btn
             FFE['type']=type_set
         return FFE
-        
+    
+    def TimeSetEntry(self,master=None,type_set=''):
+        FFE={}
+        if master!=None:
+            frame=Frame(master)
+            frame.pack()
+            FFE['frame']=frame
+            label=Label(frame,text=type_set.upper()+' : ')
+            label.grid(row=0,column=0)
+            FFE['label']=label
+            entry=Entry(frame)
+            tmp=self.savefile.show_settings(type_set)[type_set]
+            entry.insert(0,tmp) 
+            FFE['entry']=entry
+            entry.grid(row=0,column=1)
+            FFE['type']=type_set
+        return FFE
+    
     def quit_all(self):
         print("Quit All")
         self.savefile.quit()
