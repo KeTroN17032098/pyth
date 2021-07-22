@@ -38,6 +38,12 @@ images_path=['places/notebook.png','places/print.png','places/dvd.png']
 
 FILE_CLOSE = FALSE
 
+def ctrlEvent(event):#crtl+c제외 키 블락
+    if(12==event.state and event.keysym=='c' ):
+        return
+    else:
+        return "break"
+
 def date_range(start, end):
     start = datetime.datetime.strptime(start, "%Y-%m-%d")
     end = datetime.datetime.strptime(end, "%Y-%m-%d")
@@ -62,16 +68,25 @@ class Json_Data():
         self,FilePath=today_file_path,
         HistoryPath=history_file_path,
         SettingPath=setting_file_path,
+        iconpath=icon_path,
         whereList=["노트북",'프린트','관내열람'],
         genderList=['남성','여성'],
         imagelist=images_path,
         savetime='17:50',
         savedir=winshell.desktop()):#생성자
+        
+        if os.path.isfile(iconpath):pass#아이콘 체크
+        else:iconpath=''
+        
+        for image in imagelist:#이미지 리스트 체크
+            if os.path.isfile(image):pass
+            else:imagelist.remove(image)
+        
         self.SettingPath=SettingPath
         self.settings={}
         
-        self.load_settings()
-        self.check_setting(FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir)
+        self.load_settings()#세팅 파일 로드
+        self.check_setting(FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir,iconpath)
         
 
         self.__Today_Data__=[]
@@ -131,7 +146,13 @@ class Json_Data():
             with open(self.SettingPath,'r') as stpr:
                 self.settings=json.load(stpr)
             
-    def check_setting(self,FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir):
+    def check_setting(self,FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir,iconpath):
+        '''
+        세팅 파일에서 읽어온 데이터 체크
+        ->만약 내용이 없다면 1번(새로 만들고 저장 후 자기함수호출)
+        ->내용이 불완전하다 2번(세팅 읽어온거 다 지우고 자기함수호출)
+        ->내용이 맞다면 3번(세이브 파일 요소로 등록 후 함수 나옴)
+        '''
         if self.settings=={}:
             self.settings['FilePath']=[]
             self.settings['FilePath'].append({
@@ -156,26 +177,119 @@ class Json_Data():
                 'time':savetime,
                 'dir':os.path.abspath(savedir)
             }
+            self.settings['IconPath']=iconpath
             self.save_settings()
-            self.check_setting(FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir)
+            self.check_setting(FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir,iconpath)
         else:
-            if sorted(list(self.settings.keys()))!=sorted(['FilePath','NameList','ImagePath','DailySave']):
+            if sorted(list(self.settings.keys()))!=sorted(['FilePath','NameList','ImagePath','DailySave','IconPath']):
                 self.settings={}
-                self.check_setting(FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir)
+                self.check_setting(FilePath,HistoryPath,whereList,genderList,imagelist,savetime,savedir,iconpath)
             else:
-                for d in self.settings['FilePath']:
-                    if d['type']=='Data':self.FilePath=d['path']
-                    elif d['type']=='History':self.HistoryPath=d['path']
+                self.settings_to_self()
+    
+    def settings_to_self(self):#세팅 dict로부터 요소들 읽어오기
+        for d in self.settings['FilePath']:
+            if d['type']=='Data':self.FilePath=d['path']
+            elif d['type']=='History':self.HistoryPath=d['path']
+        for f in self.settings['NameList']:
+            if f['type']=='Place': self.__WhereName__=f['list']
+            elif f['type']=='Gender':self.__Gender__=f['list']
+        self.imagelist=self.settings['ImagePath']
+        self.savetime=self.settings['DailySave']['time']
+        self.savedir=self.settings['DailySave']['dir']
+        self.icon_path=self.settings['IconPath']
+     
+    def change_settings(self,**kwargs):#요소를 바꾸고 세팅 dict에 넣은 후 저장, 바뀐 것이 있가면 True 리턴
+        ischanged=False
+        for k,v in kwargs.items():
+            print (k)
+            print(v)
+            print('===========================')
+            k=k.lower()
+            if k=='savedir' and os.path.isdir(v):
+                print('change savedir')
+                self.savedir=v
+                self.settings['DailySave']['dir']=self.savedir
+                self.save_settings()
+                ischanged=True
+            if k=='icon_path' and os.path.isfile(v):
+                print('change icon path')
+                self.icon_path=v
+                self.settings['IconPath']=self.icon_path
+                self.save_settings()
+                ischanged=True
+            if k=='savetime' and v is str:
+                try:
+                    time.strftime(v,'%H:%M')
+                    print('change savetime')
+                    self.savetime=v
+                    self.settings['DailySave']['time']=self.savetime
+                    self.save_settings()
+                    ischanged=True
+                except ValueError:
+                    pass
+            if k=='imagelist' and type(v)==list:
+                for vd in v:#이미지 리스트 체크
+                    if os.path.isfile(vd):pass
+                    else:v.remove(vd)
+                print('change imagelist')
+                self.imagelist=v
+                self.settings['ImagePath']=self.imagelist
+                self.save_settings()
+                ischanged=True
+            if k=='wherevame' and type(v)==list:
+                for vd in v:
+                    if type(vd) is not str:
+                        v.remove(vd)
+                print('change places name')
+                self.__WhereName__=v
                 for f in self.settings['NameList']:
-                    if f['type']=='Place': self.__WhereName__=f['list']
-                    elif f['type']=='Gender':self.__Gender__=f['list']
-                self.imagelist=self.settings['ImagePath']
-                self.savetime=self.settings['DailySave']['time']
-                self.savedir=self.settings['DailySave']['dir']
+                    if f['type']=='Place': f['list']=self.__WhereName__
+                self.save_settings()
+                ischanged=True
+            if k=='gender' and type(v)==list:
+                for vd in v:
+                    if type(vd) is not str:
+                        v.remove(vd)
+                print('change Gender name')
+                self.__Gender__=v
+                for f in self.settings['NameList']:
+                    if f['type']=='Gender': f['list']=self.__Gender__
+                self.save_settings()
+                ischanged=True
+            if k=='filepath':
+                print('Change FilePath')
+                self.FilePath=v
+                for d in self.settings['FilePath']:
+                    if d['type']=='Data':d['path']=self.FilePath
+                self.save_settings()
+                ischanged=True
+            if k=='historypath':
+                print('Change HistoryPath')
+                self.HistoryPath=v
+                for d in self.settings['FilePath']:
+                    if d['type']=='History':d['path']=self.HistoryPath
+                self.save_settings()
+                ischanged=True
+        return ischanged 
+    
+    def show_settings(self,*args):
+        tmp={}
+        for arg in args:
+            k=None
+            if arg.lower()=='filepath':k=self.FilePath
+            elif arg.lower()=='historypath':k=self.HistoryPath
+            elif arg.lower()=='wherelist':k=self.__WhereName__
+            elif arg.lower()=='genderlist':k=self.__Gender__
+            elif arg.lower()=='imagelist':k=self.imagelist
+            elif arg.lower()=='savetime':k=self.savetime
+            elif arg.lower()=='savedir':k=self.savedir
+            elif arg.lower()=='iconpath':k=self.icon_path
+            if k!=None:tmp[arg]=k
+        return tmp
     def save_settings(self):
         with open(self.SettingPath,'w') as kosk:
             json.dump(self.settings,kosk, indent=4)
-    
     
     def save_history(self):#내역 저장
         with open(self.HistoryPath,'w') as hk:
@@ -361,7 +475,16 @@ class Json_Data():
             print(int(adjusted_width))
             ws.column_dimensions[str(column_col)].width=int(adjusted_width)
         
-        
+    def give_savedir(self):#만약 프로그램을 다른 컴퓨터에서 실행한다면 데스크톱 유저 디렉토리도 바뀌므로 그에 대비해서 만든 함수
+        tmp=''
+        if os.path.isdir(self.savedir):
+            pass
+        elif self.savedir.split('\\')[-1]=='Desktop':
+            tmp=winshell.desktop()
+        else:
+            tmp='data'
+        if tmp!='':self.change_settings(savedir=tmp)
+        return self.savedir
     
     def modify_data_excelike(self,selected_dates=[],mode=TRUE,excel_path=excel_path):
         """
@@ -514,6 +637,8 @@ class Json_Data():
         self.save_history()
         del self
 
+
+
 class Table(ttk.Treeview):
     def __init__(self,master=None,columns=[],WIDTH=180,MINWIDTH=165,first_column="Date(날짜)"):
         super().__init__(master)
@@ -602,11 +727,11 @@ class MyDateEntry(DateEntry):
                     text='Today: %s' % datetime.datetime.today().strftime('%x')).pack(fill='x')
         
 class Application(Frame):
-    def __init__(self,master=None,savefile=None,image_sets=[],save_time='18:00',save_path=''):
+    def __init__(self,master=None,savefile=None):
         super().__init__(master)
         self.master = master
         self.savefile = savefile
-        self.image_sets = image_sets
+        self.image_sets = self.savefile.imagelist
         self.viewmode=FALSE
         print(self.savefile.data)
         self.window_set()
@@ -614,7 +739,7 @@ class Application(Frame):
         self.create_menu()
         self.create_widgets()
         master.protocol("WM_DELETE_WINDOW",self.quit_all)#X버튼을 눌러서 종료시
-        self.UpdateTexts(save_time,save_path)
+        self.UpdateTexts(self.savefile.savetime,self.savefile.give_savedir())
         
         
     def window_set(self):
@@ -640,6 +765,7 @@ class Application(Frame):
         self.menubar.add_cascade(label="세이브/로드",menu=self.menu2)
         self.menu4=Menu(self.menubar,tearoff=0)
         self.menu4.add_command(label="다른 날짜 수정",command=self.edit_other_date)
+        self.menu4.add_command(label="설정 수정",command=self.edit_settings)
         self.menubar.add_cascade(label='수정',menu=self.menu4)
         self.menu3=Menu(self.menubar,tearoff=0)
         self.menu3.add_command(label="설명서",command=self.show_help)
@@ -967,7 +1093,7 @@ class Application(Frame):
         labels2.grid(row=1,column=0)
         cbbs2.grid(row=1,column=1)
         btns1.grid(row=2,column=1)
-    
+        
     def change_settings(self,**kwargs):
         for k,v in kwargs.items():
             if 'Save_Time' in kwargs.keys():
@@ -984,6 +1110,41 @@ class Application(Frame):
     def show_copyright(self):
         webbrowser.open('copyright.pdf')    
     
+    def edit_settings(self):
+        self.FFES={}
+        sw=Toplevel(self.master)
+        sw.geometry('300x120')
+        sw.resizable(False,False)
+        sw.title('Settings')
+        self.FFES['filepath']=self.FileFindEntry(sw,type_set='filepath')
+        self.FFES['historypath']=self.FileFindEntry(sw,type_set='historypath')
+    
+    def FileFindEntry(self,master=None,start_dir=winshell.desktop(),file_type=[("json file(.json)",".json")],type_set=''):
+        def finder(event):
+            k=askopenfilename(title="경로 지정",filetypes=file_type,initialdir=start_dir)
+            entry.delete(0,END)
+            entry.insert(0,k)
+            master.lift()
+        FFE={}  
+        if master!=None:
+            frame=Frame(master)
+            frame.pack()
+            FFE['frame']=frame
+            label=Label(frame,text=type_set.upper()+' : ')
+            label.grid(row=0,column=0)
+            FFE['label']=label
+            entry=Entry(frame)
+            entry.insert(0,self.savefile.show_settings(type_set)[type_set])
+            entry.bind("<Key>",lambda e: ctrlEvent(e))
+            FFE['entry']=entry
+            entry.grid(row=0,column=1)
+            btn=Button(frame,text='Change')
+            btn.bind('<ButtonRelease-1>',finder)
+            btn.grid(row=0,column=2)
+            FFE['button']=btn
+            FFE['type']=type_set
+        return FFE
+        
     def quit_all(self):
         print("Quit All")
         self.savefile.quit()
@@ -993,8 +1154,8 @@ class Application(Frame):
 if __name__ == '__main__':#treeview 이용 오늘 뿐만 아니라 옛날 기록도 조회
     while True:
         root=Tk()
-        tr=Json_Data(savetime='16:25',savedir='data')
-        app=Application(master=root,savefile=tr,image_sets=tr.imagelist,save_time=tr.savetime,save_path=tr.savedir)
+        tr=Json_Data(savetime='17:50',savedir='data')
+        app=Application(master=root,savefile=tr)
         app.mainloop()
         time.sleep(5)
         if FILE_CLOSE:
