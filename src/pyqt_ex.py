@@ -621,12 +621,11 @@ class Json_Data():
         self.save_history()
         del self
 
-class MyApp(QMainWindow):
+class MyApp(QWidget):
     def __init__(self,save_file=None,master=None):
         super().__init__()
         self.savefile=save_file
         self.master=master
-        self.master.setQuitOnLastWindowClosed(True)
         self.InitUi()
         self.SetUi()
     
@@ -642,20 +641,21 @@ class MyApp(QMainWindow):
         pass
     
     def set_widgets(self):
-        self.lbl=QLabel(self.savefile.FilePath,self)
-        self.lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lbl.move(200,300)
-        btn=QPushButton('Test',self)
-        btn.released.connect(self.change_set)
+        self.table=QTableWidget(4,7,self)
+        self.table.resize(1000,250)
+        self.setTableWidgetData()
         
-    def change_set(self):
-        if self.savefile.change_settings(filepath=os.path.join(winshell.desktop(),'lox.json')):
-            self.lbl.setText(self.savefile.FilePath)
-            self.lbl.repaint()
-    
+    def setTableWidgetData(self):
+        self.table.setHorizontalHeaderLabels(['Date(날짜) :']+self.savefile.columns_name())
+        data=self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=False)
+        
+
+        self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
+        
     def SetUi(self):
         self.setWindowTitle(today_date_str()+'일 기록')
-        self.resize(1200,600)
+        self.resize(1000,600)
         self.center()
         self.setWindowIcon(QIcon(self.savefile.icon_path))
         self.show()
