@@ -748,6 +748,7 @@ class Application(Frame):
         self.master.iconbitmap(default=icon_path)
         self.master.title("전자정보실 "+today_date_str()+"일 기록")
         self.master.geometry("1200x600")
+        self.fontStyle3=tkFont.Font(family="Lucida Grande",size=18,weight='bold')
 
     def create_menu(self):
         self.menubar=Menu(self.master)
@@ -1106,9 +1107,11 @@ class Application(Frame):
     def edit_settings(self):
         FFES={}
         sw=Toplevel(self.master)
-        sw.geometry('350x300')
+        sw.geometry('500x380')
         sw.resizable(False,False)
         sw.title('Settings')
+        lbere=Label(sw,text="Save Your Data File Before change settings",font=self.fontStyle3)
+        lbere.pack()
         FFES['filepath']=self.FileFindEntry(sw,type_set='filepath')
         FFES['historypath']=self.FileFindEntry(sw,type_set='historypath')
         FFES['iconpath']=self.FileFindEntry(sw,type_set='iconpath')
