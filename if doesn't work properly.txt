@@ -1,1 +1,2 @@
 부모 디렉토리를 보안 프로그램 검사목록에서 제외시키십시오
+Make your defender not to detect this file's parent directory 

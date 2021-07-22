@@ -1,0 +1,39 @@
+{
+    "FilePath": [
+        {
+            "path": "C:\\Users\\User\\Desktop\\lox.json",
+            "type": "Data"
+        },
+        {
+            "path": "data/today_history.json",
+            "type": "History"
+        }
+    ],
+    "NameList": [
+        {
+            "list": [
+                "\ub178\ud2b8\ubd81",
+                "\ud504\ub9b0\ud2b8",
+                "\uad00\ub0b4\uc5f4\ub78c"
+            ],
+            "type": "Place"
+        },
+        {
+            "list": [
+                "\ub0a8\uc131",
+                "\uc5ec\uc131"
+            ],
+            "type": "Gender"
+        }
+    ],
+    "ImagePath": [
+        "places/notebook.png",
+        "places/print.png",
+        "places/dvd.png"
+    ],
+    "DailySave": {
+        "time": "17:50",
+        "dir": "C:\\Users\\User\\Desktop"
+    },
+    "IconPath": "checkbox/logo.ico"
+}
