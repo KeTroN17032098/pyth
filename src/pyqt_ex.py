@@ -1,3 +1,5 @@
+import PyQt5
+from PyQt5 import QtCore
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -23,12 +25,13 @@ import threading
 import pprint
 import pandas as pd
 import openpyxl
-from openpyxl.styles import Font,Alignment,PatternFill,Color
+from openpyxl.styles import Font,Alignment,PatternFill,Color, alignment
 import shutil
 from openpyxl.styles.borders import Border, Side
 import webbrowser
 import winshell
 import schedule
+import pandas
 
 
 
@@ -41,6 +44,12 @@ history_excel_path='history_excel.xlsx'
 images_path=['places/notebook.png','places/print.png','places/dvd.png']
 
 FILE_CLOSE = True
+    
+def ctrlEvent(event):#crtl+c제외 키 블락
+    if(12==event.state and event.keysym=='c' ):
+        return
+    else:
+        return "break"
 
 def date_range(start, end):
     start = datetime.datetime.strptime(start, "%Y-%m-%d")
@@ -210,7 +219,7 @@ class Json_Data():
                 self.settings['DailySave']['dir']=self.savedir
                 self.save_settings()
                 ischanged=True
-            if k=='icon_path' and os.path.isfile(v):
+            if k=='iconpath' and os.path.isfile(v):
                 print('change icon path')
                 self.icon_path=v
                 self.settings['IconPath']=self.icon_path
@@ -235,7 +244,7 @@ class Json_Data():
                 self.settings['ImagePath']=self.imagelist
                 self.save_settings()
                 ischanged=True
-            if k=='wherevame' and type(v)==list:
+            if k=='wherelist' and type(v)==list:
                 for vd in v:
                     if type(vd) is not str:
                         v.remove(vd)
@@ -245,7 +254,7 @@ class Json_Data():
                     if f['type']=='Place': f['list']=self.__WhereName__
                 self.save_settings()
                 ischanged=True
-            if k=='gender' and type(v)==list:
+            if k=='genderlist' and type(v)==list:
                 for vd in v:
                     if type(vd) is not str:
                         v.remove(vd)
@@ -270,7 +279,21 @@ class Json_Data():
                 self.save_settings()
                 ischanged=True
         return ischanged 
-                
+    
+    def show_settings(self,*args):
+        tmp={}
+        for arg in args:
+            k=None
+            if arg.lower()=='filepath':k=self.FilePath
+            elif arg.lower()=='historypath':k=self.HistoryPath
+            elif arg.lower()=='wherelist':k=self.__WhereName__
+            elif arg.lower()=='genderlist':k=self.__Gender__
+            elif arg.lower()=='imagelist':k=self.imagelist
+            elif arg.lower()=='savetime':k=self.savetime
+            elif arg.lower()=='savedir':k=self.savedir
+            elif arg.lower()=='iconpath':k=self.icon_path
+            if k!=None:tmp[arg]=k
+        return tmp
     def save_settings(self):
         with open(self.SettingPath,'w') as kosk:
             json.dump(self.settings,kosk, indent=4)
@@ -592,7 +615,7 @@ class Json_Data():
             check_tmp={}
             with open(path,'r') as check:
                 check_tmp=json.load(check)
-            if sorted(list(check_tmp.keys()))==sorted(self.__WhereName__+['cumulative','typecode']):
+            if sorted(list(check_tmp.keys()))==sorted(self.__WhereName__+['cumulative','typecode']) and sorted(list(check_tmp[self.__WhereName__[0]][0].keys()))==sorted(list(self.__Gender__+['date','where'])):
                 isValid=TRUE
                 print("세이브 파일 무결성 확인")
         else:
@@ -613,13 +636,16 @@ class Json_Data():
             pass
         return isValid
 
-    def quit(self):
+    def quit(self,mode=TRUE):
         global FILE_CLOSE
-        FILE_CLOSE=TRUE
+        FILE_CLOSE=mode
         print("자동저장 후 종료")
         self.save_data()
         self.save_history()
+        self.save_settings()
+        print('저장 완료')
         del self
+
 
 class MyApp(QWidget):
     def __init__(self,save_file=None,master=None):
@@ -641,18 +667,26 @@ class MyApp(QWidget):
         pass
     
     def set_widgets(self):
-        self.table=QTableWidget(4,7,self)
+        self.table=QTableWidget(self)
         self.table.resize(1000,250)
         self.setTableWidgetData()
         
     def setTableWidgetData(self):
-        self.table.setHorizontalHeaderLabels(['Date(날짜) :']+self.savefile.columns_name())
-        data=self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=False)
-        
+        dta=self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=False)
+        df=pandas.DataFrame.from_dict(dta,orient='index')
 
         self.table.resizeColumnsToContents()
         self.table.resizeRowsToContents()
-        
+        self.table.setColumnCount(len(df.columns))
+        self.table.setRowCount(len(df.index))
+        for i in range(len(df.index)):
+            for j in range(len(df.columns)):
+                oak=QTableWidgetItem(str(df.iloc[i, j]))
+                oak.setTextAlignment(QtCore.Qt.AlignCenter)
+                self.table.setItem(i,j,oak)
+        self.table.setStyleSheet("border-radius:14px;"
+                                 "border-width:2px")
+        self.table.setAutoScroll(True)
     def SetUi(self):
         self.setWindowTitle(today_date_str()+'일 기록')
         self.resize(1000,600)

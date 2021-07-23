@@ -33,7 +33,7 @@
     ],
     "DailySave": {
         "time": "17:50",
-        "dir": "D:\\exercise\\github\\pyth\\data"
+        "dir": "data"
     },
     "IconPath": "checkbox/logo.ico"
 }

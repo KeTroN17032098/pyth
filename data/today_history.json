@@ -2531,6 +2531,66 @@
             "time": "2021-07-23 12:38:32 AM",
             "type": "init",
             "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:06:44 AM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:12:49 AM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:23:47 AM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:36:23 AM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:36:42 AM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:36:57 AM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:37:27 AM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:46:25 AM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:47:26 AM",
+            "type": "init",
+            "isSucess": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:48:58 AM",
+            "type": "init",
+            "isSucess": 1
         }
     ],
     "push": [
@@ -4153,6 +4213,24 @@
             "gender": "\ub0a8\uc131",
             "place": "\uad00\ub0b4\uc5f4\ub78c",
             "count": 17
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:22 AM",
+            "type": "push",
+            "isSucess": 1,
+            "gender": "\ub0a8\uc131",
+            "place": "\ub178\ud2b8\ubd81",
+            "count": 1
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:24 AM",
+            "type": "push",
+            "isSucess": 1,
+            "gender": "\ub0a8\uc131",
+            "place": "\ub178\ud2b8\ubd81",
+            "count": -1
         }
     ],
     "show": [
@@ -14644,6 +14722,177 @@
         {
             "user": "rayan",
             "time": "2021-07-23 12:38:33 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:06:45 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:12:49 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:22 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:24 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:37 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-07"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:37 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-13"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:37 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-19"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:37 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-20"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:37 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-21"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:37 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-22"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:37 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:13:40 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:23:47 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:36:42 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:36:57 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:37:28 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:46:26 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:47:26 AM",
+            "type": "show",
+            "isSucess": 1,
+            "dates": [
+                "2021-07-23"
+            ]
+        },
+        {
+            "user": "User",
+            "time": "2021-07-23 09:48:58 AM",
             "type": "show",
             "isSucess": 1,
             "dates": [
