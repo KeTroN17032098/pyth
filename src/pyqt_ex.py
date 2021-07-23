@@ -646,7 +646,14 @@ class Json_Data():
         print('저장 완료')
         del self
 
-
+class MyDelegate(QItemDelegate):
+    def __init__(self,parent):
+        super().__init__(parent)
+        
+    def paint(self,painter=QPainter,option=QStyleOptionViewItem,index=QModelIndex):
+        super().paint(painter,option,index)
+        painter.setPen(Qt.red)
+        painter.drawRect( option.rect )
 class MyApp(QWidget):
     def __init__(self,save_file=None,master=None):
         super().__init__()
@@ -669,24 +676,27 @@ class MyApp(QWidget):
     def set_widgets(self):
         self.table=QTableWidget(self)
         self.table.resize(1000,250)
+        self.table.move(0,0)
         self.setTableWidgetData()
         
     def setTableWidgetData(self):
-        dta=self.savefile.modify_data_excelike(selected_dates=[today_date_str()],mode=False)
-        df=pandas.DataFrame.from_dict(dta,orient='index')
-
-        self.table.resizeColumnsToContents()
-        self.table.resizeRowsToContents()
+        dta=self.savefile.modify_data_excelike(mode=False)
+        df=pandas.DataFrame.from_dict(dta,orient='index',columns=['Date(날짜)']+self.savefile.columns_name()+['Total(총합)'])
         self.table.setColumnCount(len(df.columns))
         self.table.setRowCount(len(df.index))
+        self.table.setHorizontalHeaderLabels(df.columns.tolist())
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         for i in range(len(df.index)):
             for j in range(len(df.columns)):
                 oak=QTableWidgetItem(str(df.iloc[i, j]))
                 oak.setTextAlignment(QtCore.Qt.AlignCenter)
                 self.table.setItem(i,j,oak)
-        self.table.setStyleSheet("border-radius:14px;"
-                                 "border-width:2px")
         self.table.setAutoScroll(True)
+        self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
+        self.table.setAutoFillBackground(True)
+        self.table.setStyleSheet('QTableView {border: 4px solid ;} QTableView::column{border: 4px solid ;}')
+        self.table.repaint()
     def SetUi(self):
         self.setWindowTitle(today_date_str()+'일 기록')
         self.resize(1000,600)
